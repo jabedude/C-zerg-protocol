@@ -58,4 +58,12 @@ typedef struct udp_header {
     u_short uh_sum;
 } UdpHeader_t;
 
+typedef struct zerg_header {
+    uint8_t zh_vt;
+    uint32_t zh_len : 24;
+    u_short zh_dest;
+    u_short zh_src;
+    uint32_t zg_seqid;
+} ZergHeader_t;
+
 #endif
