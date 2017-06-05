@@ -1,0 +1,6 @@
+bin/*
+!bin/.gitkeep
+*.swp
+*.o
+a.out
+test
