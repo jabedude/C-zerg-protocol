@@ -63,7 +63,7 @@ typedef struct zerg_header {
     uint32_t zh_len : 24;
     u_short zh_dest;
     u_short zh_src;
-    uint32_t zg_seqid;
+    uint32_t zh_seqid;
 } ZergHeader_t;
 
 #endif

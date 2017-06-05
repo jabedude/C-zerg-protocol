@@ -73,6 +73,10 @@ int main(int argc, char **argv)
 
     fread(&zh, sizeof(zh), 1, fp);
     printf("Version: %x\n", zh.zh_vt >> 4);
+    printf("Sequence: %d\n", ntohl(zh.zh_seqid));
+    printf("From: %d\n", ntohs(zh.zh_src));
+    printf("To: %d\n", ntohs(zh.zh_dest));
+
     if ((zh.zh_vt & 0xFF) == 0x10) /* TODO: Create macro for these mask operations */
         printf("DEBUG: ZERG V 1 // TYPE 0\n");
     else if ((zh.zh_vt & 0xFF) == 0x11)
@@ -83,8 +87,6 @@ int main(int argc, char **argv)
         printf("DEBUG: ZERG V 1 // TYPE 3\n");
     else
         fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);
-
-
 
     fclose(fp);
     return 0;
