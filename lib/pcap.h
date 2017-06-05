@@ -1,6 +1,16 @@
+#ifndef CODEC_PCAP_HEADER
+#define CODEC_PCAP_HEADER
+
+#include <sys/types.h>
+#include <netinet/in.h>
+#include <stdint.h>
+
+/* Defines */
+#define ETH_SIZE 14
+
 /* Structs for reading a pcap file */
 
-struct pcap_header {
+typedef struct pcap_header {
     uint32_t magic_num;
     uint16_t version_major;
     uint16_t version_minor;
@@ -8,9 +18,15 @@ struct pcap_header {
     uint32_t sigfigs;
     uint32_t snaplen;
     uint32_t network;
-};
+} PcapHeader_t;
 
-struct ip_header {
+typedef struct eth_header {
+    u_char eth_dhost[6];
+    u_char eth_shost[6];
+    u_short eth_type;
+} EthHeader_t;
+
+typedef struct ip_header {
     u_char  ip_vhl;                 
     u_char  ip_tos;                 
     u_short ip_len;                 
@@ -24,11 +40,13 @@ struct ip_header {
     u_char  ip_p;                   
     u_short ip_sum;                 
     struct  in_addr ip_src,ip_dst;  
-};
+} IpHeader_t;
 
-struct udp_header {
+typedef struct udp_header {
     u_short uh_sport;
     u_short uh_dport;
     u_short uh_ulen;
     u_short uh_sum;
-};
+} UdpHeader_t;
+
+#endif
