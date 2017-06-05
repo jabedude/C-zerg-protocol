@@ -31,7 +31,7 @@ typedef struct pcap_pack_header {
 typedef struct eth_header {
     u_char eth_dhost[6];
     u_char eth_shost[6];
-    uint64_t eth_type;
+    u_short eth_type;
 } EthHeader_t;
 
 typedef struct ip_header {
