@@ -7,6 +7,7 @@
 
 /* Defines */
 #define ETH_SIZE 14
+#define UDP_SIZE 0xC
 
 /* Structs for reading a pcap file */
 

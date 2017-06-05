@@ -9,6 +9,7 @@ int main(int argc, char **argv)
     PcapPackHeader_t pcap_pack;
     EthHeader_t eth;
     IpHeader_t ip;
+    UdpHeader_t udp;
 
     /* Usage/ args check */
     if (argc < 2) {
@@ -53,6 +54,10 @@ int main(int argc, char **argv)
     fread(&ip, sizeof(ip), 1, fp);
     printf("DEBUG: IP VERSION/HL is 0x%x\n", ip.ip_vhl);
     printf("DEBUG: IP TOTAL LEN is %x\n", ip.ip_len);
+
+    fread(&udp, sizeof(udp), 1, fp);
+    printf("DEBUG: UDP DEST PORT IS is 0x%x\n", ntohs(udp.uh_dport));
+    printf("DEBUG: UDP LENGTH IS is %u\n", ntohs(udp.uh_ulen));
 
     fclose(fp);
     return 0;
