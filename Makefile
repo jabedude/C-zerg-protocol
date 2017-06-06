@@ -3,8 +3,11 @@ CFLAGS=-Wall -Wextra -Wpedantic -Wwrite-strings -Wstack-usage=1024 -Wfloat-equal
 
 all: decode encode
 
-decode: decode.c
-	$(CC) $(CFLAGS) $< -o bin/$@
+decode: decode.c zerg.o
+	$(CC) $(CFLAGS) decode.c obj/zerg.o -o bin/$@
+
+zerg.o: lib/zerg.c
+	$(CC) $(CFLAGS) $< -c -o obj/zerg.o
 
 encode: encode.c
 	$(CC) $(CFLAGS) $< -o bin/$@

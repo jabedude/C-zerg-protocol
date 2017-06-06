@@ -2,6 +2,7 @@
 #include <arpa/inet.h>
 
 #include "lib/pcap.h"
+#include "lib/zerg.h"
 
 int main(int argc, char **argv)
 {
@@ -77,16 +78,18 @@ int main(int argc, char **argv)
     printf("From: %d\n", ntohs(zh.zh_src));
     printf("To: %d\n", ntohs(zh.zh_dest));
 
-    if ((zh.zh_vt & 0xFF) == 0x10) /* TODO: Create macro for these mask operations */
+    if ((zh.zh_vt & 0xFF) == 0x10) {                /* TODO: Create macro for these mask operations */
         printf("DEBUG: ZERG V 1 // TYPE 0\n");
-    else if ((zh.zh_vt & 0xFF) == 0x11)
+        z_msg_parse(fp, &zh);
+    } else if ((zh.zh_vt & 0xFF) == 0x11) {
         printf("DEBUG: ZERG V 1 // TYPE 1\n");
-    else if ((zh.zh_vt & 0xFF) == 0x12)
+    } else if ((zh.zh_vt & 0xFF) == 0x12) {
         printf("DEBUG: ZERG V 1 // TYPE 2\n");
-    else if ((zh.zh_vt & 0xFF) == 0x13)
+    } else if ((zh.zh_vt & 0xFF) == 0x13) {
         printf("DEBUG: ZERG V 1 // TYPE 3\n");
-    else
+    } else {
         fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);
+    }
 
     fclose(fp);
     return 0;

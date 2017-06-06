@@ -1,5 +1,7 @@
 bin/*
 !bin/.gitkeep
+obj/*
+!obj/.gitkeep
 *.swp
 *.o
 a.out
