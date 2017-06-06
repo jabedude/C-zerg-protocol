@@ -3,6 +3,15 @@
 
 #include "pcap.h"
 
+/* Structures */
+typedef zerg_status_payload {
+    uint8_t zsp_hp[3];
+    uint8_t zsp_armor;
+    uint8_t zsp_maxhp[3];
+    uint8_t zsp_ztype;
+    uint32_t zsp_speed;
+} ZergStatPayload_t;
+
 /* Macros */
 /* 
 This macro is a network to host endianness switcher for 3 byte values.
