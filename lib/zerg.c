@@ -26,3 +26,14 @@ void z_msg_parse(FILE *fp, ZergHeader_t *zh)
     free(msg);
     return;
 }
+
+void z_status_parse(FILE *fp, ZergHeader_t *zh)
+{
+    int len = 0;
+
+    len = NTOH3(zh->zh_len);
+    len -= ZERG_SIZE;
+    printf("DEBUG: PAYLOAD IS %d\n", len);
+
+    return;
+}

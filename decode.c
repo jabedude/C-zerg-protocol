@@ -83,6 +83,7 @@ int main(int argc, char **argv)
         z_msg_parse(fp, &zh);
     } else if ((zh.zh_vt & 0xFF) == 0x11) {
         printf("DEBUG: ZERG V 1 // TYPE 1\n");
+        z_status_parse(fp, &zh);
     } else if ((zh.zh_vt & 0xFF) == 0x12) {
         printf("DEBUG: ZERG V 1 // TYPE 2\n");
     } else if ((zh.zh_vt & 0xFF) == 0x13) {
