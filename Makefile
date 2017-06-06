@@ -13,4 +13,4 @@ encode: encode.c
 	$(CC) $(CFLAGS) $< -o bin/$@
 
 clean:
-	rm -f bin/*
+	rm -f bin/* obj/*
