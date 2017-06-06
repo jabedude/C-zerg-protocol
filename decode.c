@@ -21,6 +21,10 @@ int main(int argc, char **argv)
     }
 
     fp = fopen(argv[1], "rb");
+    if (!fp) {
+        fprintf(stderr, "%s: Error opening file.\n", argv[0]);
+        return 1;
+    }
 
     fread(&pcap, sizeof(pcap), 1, fp);
     if (pcap.magic_num == 0xa1b2c3d4) {
@@ -41,14 +45,14 @@ int main(int argc, char **argv)
 
     fread(&eth, sizeof(eth), 1, fp);
 #ifdef DEBUG
-    printf("DEBUG: ETH DEST HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n", 
+    printf("DEBUG: ETH DEST HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
                                             eth.eth_dhost[0],
                                             eth.eth_dhost[1],
                                             eth.eth_dhost[2],
                                             eth.eth_dhost[3],
                                             eth.eth_dhost[4],
                                             eth.eth_dhost[5]);
-    printf("DEBUG: ETH SRC HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n", 
+    printf("DEBUG: ETH SRC HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
                                             eth.eth_shost[0],
                                             eth.eth_shost[1],
                                             eth.eth_shost[2],

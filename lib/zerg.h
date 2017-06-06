@@ -3,8 +3,16 @@
 
 #include "pcap.h"
 
+/* Definitions */
+#define ZERG_STAT_LEN 12
+
 /* Structures */
-typedef zerg_status_payload {
+typedef struct zerg_breed {
+    int ind;
+    const char *breed;
+} ZergBreed_t;
+
+typedef struct zerg_status_payload {
     uint8_t zsp_hp[3];
     uint8_t zsp_armor;
     uint8_t zsp_maxhp[3];
