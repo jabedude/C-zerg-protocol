@@ -8,6 +8,7 @@
 /* Defines */
 #define ETH_SIZE 14
 #define UDP_SIZE 0xC
+#define ZERG_SIZE 12
 
 /* Structs for reading a pcap file */
 
@@ -60,7 +61,7 @@ typedef struct udp_header {
 
 typedef struct zerg_header {
     uint8_t zh_vt;
-    uint32_t zh_len : 24;
+    uint8_t zh_len[3];
     uint16_t zh_src;
     uint16_t zh_dest;
     uint32_t zh_seqid;
