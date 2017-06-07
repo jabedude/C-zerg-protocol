@@ -101,15 +101,38 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
 
     len = NTOH3(zh->zh_len);
     len -= ZERG_SIZE;
-#ifdef DEBUG
     printf("DEBUG: PAYLOAD IS %d\n", len);
-#endif
 
+    /* TODO: try moving all reads outside of if..else */
     if (len == 2) {
         /* No parameters passed */
         fread(&zcp, len, 1, fp);
-        printf("DEBUG: COMMAND IS %s\n", cmds[zcp.zcp_command].cmd); /* TODO: might need to ntohs zcp_command */
+        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].cmd); /* TODO: might need to ntohs zcp_command */
         printf("%s\n", cmds[zcp.zcp_command].cmd);
+    } else {
+        /* These commands have parameters */
+        fread(&zcp, len, 1, fp);
+        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].cmd); /* TODO: might need to ntohs zcp_command */
+        printf("%s\n", cmds[ntohs(zcp.zcp_command)].cmd);
+
+        switch (ntohs(zcp.zcp_command)) {
+            
+            case 1 :
+                break;
+            case 3 :
+                break;
+            case 5 :
+#ifdef DEBUG
+                printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
+                printf("DEBUG: PARAM 2 IS: %d\n", ntohs(zcp.zcp_param_two));
+#endif
+                if (ntohs(zcp.zcp_param_one))
+                    printf("Add to ");
+                else
+                    printf("Remove from ");
+                printf("group ID %d\n", COMP2(zcp.zcp_param_two));
+                break;
+        }
     }
 
     return;

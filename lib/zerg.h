@@ -28,7 +28,8 @@ typedef struct zerg_status_payload {
 
 typedef struct zerg_command_payload {
     uint16_t zcp_command;
-    uint16_t zcp_param[2];
+    uint16_t zcp_param_one;
+    int16_t zcp_param_two;
 } ZergCmdPayload_t;
 
 /* Macros */
@@ -36,6 +37,7 @@ typedef struct zerg_command_payload {
 This macro is a network to host endianness switcher for 3 byte values.
 */
 #define NTOH3(x) ((int) x[0] << 16) | ((int) (x[1]) << 8) | ((int) (x[2]))
+#define COMP2(x) (~x) + 1
 
 /* Function prototypes */
 void z_msg_parse(FILE *fp, ZergHeader_t *zh);
