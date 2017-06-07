@@ -5,7 +5,35 @@
 #include "zerg.h"
 #include "pcap.h"
 
-double ieee_convert(uint32_t num)
+double
+convert64ToDouble(uint64_t num)
+{
+
+    uint8_t sign;
+
+    uint16_t exponent;
+
+    uint64_t mantisa;
+
+    double result = 0;
+
+
+
+    sign = num >> 63;
+
+    exponent = (num >> 52 & 0x7FF) - 1023;
+
+    mantisa = num & 0xFFFFFFFFFFFFF;
+
+    result = (mantisa *pow(2, -52)) + 1;
+
+    result *= pow(1, sign) * pow(2, exponent);
+
+    return result;
+
+}
+
+double ieee_convert32(uint32_t num)
 {
     uint8_t sign, exponent;
     uint32_t mantisa;
@@ -75,7 +103,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     printf("HP : %d/%u\n", hp, max_hp);
     printf("Type: %s\n", breeds[zsp.zsp_ztype].breed);
     printf("Armor: %u\n", zsp.zsp_armor);
-    printf("Speed: %fm/s\n", ieee_convert(ntohl(zsp.zsp_speed))); /* TODO: Drop trailing zeros. try sprintf() */
+    printf("Speed: %fm/s\n", ieee_convert32(ntohl(zsp.zsp_speed))); /* TODO: Drop trailing zeros. try sprintf() */
     name = (char *) malloc(sizeof(char) * len - ZERG_STAT_LEN);
     fread(name, sizeof(char), len - ZERG_STAT_LEN, fp);
     printf("Name: ");
@@ -116,8 +144,13 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
         printf("%s\n", cmds[ntohs(zcp.zcp_command)].cmd);
 
         switch (ntohs(zcp.zcp_command)) {
-            
             case 1 :
+#ifdef DEBUG
+                printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
+                printf("DEBUG: PARAM 2 IS: %d\n", ntohs(zcp.zcp_param_two));
+#endif
+                /* TODO: check direction and distance. Might need to convert to precision */
+                printf("Move %d m at bearing %f.\n", ntohs(zcp.zcp_param_one), ieee_convert32(ntohl(zcp.zcp_param_two)));
                 break;
             case 3 :
                 break;
@@ -127,10 +160,12 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 printf("DEBUG: PARAM 2 IS: %d\n", ntohs(zcp.zcp_param_two));
 #endif
                 if (ntohs(zcp.zcp_param_one))
-                    printf("Add to ");
+                    printf("ADD to ");
                 else
                     printf("Remove from ");
-                printf("group ID %d\n", COMP2(zcp.zcp_param_two));
+                printf("group ID %d\n", COMP2((int32_t) zcp.zcp_param_two));
+                break;
+            case 7 :
                 break;
         }
     }
