@@ -166,6 +166,11 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 printf("group ID %d\n", COMP2((int32_t) zcp.zcp_param_two));
                 break;
             case 7 :
+#ifdef DEBUG
+                printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
+                printf("DEBUG: PARAM 2 IS: %d\n", ntohl(zcp.zcp_param_two));
+#endif
+                printf("Re-send %d\n.", ntohl(zcp.zcp_param_two));
                 break;
         }
     }
