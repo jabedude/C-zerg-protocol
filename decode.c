@@ -93,6 +93,7 @@ int main(int argc, char **argv)
         z_cmd_parse(fp, &zh);
     } else if ((zh.zh_vt & 0xFF) == 0x13) {
         printf("DEBUG: ZERG V 1 // TYPE 3\n");
+        z_gps_parse(fp, &zh);
     } else {
         fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);
     }

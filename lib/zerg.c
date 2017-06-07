@@ -5,8 +5,7 @@
 #include "zerg.h"
 #include "pcap.h"
 
-double
-convert64ToDouble(uint64_t num)
+double ieee_convert64(uint64_t num)
 {
 
     uint8_t sign;
@@ -47,6 +46,14 @@ double ieee_convert32(uint32_t num)
     result *= pow(1, sign) * pow(2, exponent);
 
     return result;
+}
+
+uint64_t ntoh64(uint64_t val)
+{
+    /* https://stackoverflow.com/a/2637138/5155574 */
+    val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
+    val = ((val << 16) & 0xFFFF0000FFFF0000ULL ) | ((val >> 16) & 0x0000FFFF0000FFFFULL );
+    return (val << 32) | (val >> 32);
 }
 
 void z_msg_parse(FILE *fp, ZergHeader_t *zh)
@@ -170,10 +177,30 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
                 printf("DEBUG: PARAM 2 IS: %d\n", ntohl(zcp.zcp_param_two));
 #endif
-                printf("Re-send %d\n.", ntohl(zcp.zcp_param_two));
+                printf("Re-send %d\n", ntohl(zcp.zcp_param_two));
                 break;
         }
     }
 
+    return;
+}
+
+
+void z_gps_parse(FILE *fp, ZergHeader_t *zh)
+{
+    int len = 0;
+    ZergGpsPayload_t zgp;
+
+    len = NTOH3(zh->zh_len);
+    len -= ZERG_SIZE;
+    printf("DEBUG: PAYLOAD IS %d\n", len);
+
+    fread(&zgp, len, 1, fp);
+    printf("Longitude : %f deg\n", ieee_convert64(ntoh64(zgp.zgp_long)));
+    printf("Latitude : %f deg\n", ieee_convert64(ntoh64(zgp.zgp_lat)));
+    printf("Altitude : %f m\n", ieee_convert32(ntohl(zgp.zgp_alt)));
+    printf("Bearing : %f deg\n", ieee_convert32(ntohl(zgp.zgp_bearing)));
+    printf("Speed : %f m/s\n", ieee_convert32(ntohl(zgp.zgp_speed)));
+    printf("Accuracy : %f m\n", ieee_convert32(ntohl(zgp.zgp_acc)));
     return;
 }
