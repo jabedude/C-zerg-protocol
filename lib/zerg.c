@@ -59,6 +59,9 @@ void z_msg_parse(FILE *fp, ZergHeader_t *zh)
 #endif
 
     msg = (char *) malloc(sizeof(char) * len);
+    if (!msg) {
+        fprintf(stderr, "MALLOC ERROR!\n");
+    }
     fread(msg, sizeof(char), len, fp);
 #ifdef DEBUG
     printf("DEBUG: MSG IS: ");

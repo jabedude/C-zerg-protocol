@@ -1,0 +1,317 @@
+>decode command_get_gps_mult.pcap
+Version  : 1
+Sequence : 1458677157
+From     : 6600
+To       : 3141
+GET_GPS
+Version  : 1
+Sequence : 4163242689
+From     : 6600
+To       : 20210
+GET_GPS
+Version  : 1
+Sequence : 2353458322
+From     : 6600
+To       : 1337
+GET_GPS
+Version  : 1
+Sequence : 2741091476
+From     : 6600
+To       : 867
+GET_GPS
+>decode command_repeat.pcap
+Version  : 1
+Sequence : 2580713212
+From     : 6600
+To       : 24601
+REPEAT 1414048510
+Version  : 1
+Sequence : 590869003
+From     : 6600
+To       : 2525
+REPEAT 1414048510
+Version  : 1
+Sequence : 1873667940
+From     : 6600
+To       : 870
+REPEAT 1414048510
+Version  : 1
+Sequence : 113355906
+From     : 6600
+To       : 871
+REPEAT 1414048510
+Version  : 1
+Sequence : 2842943452
+From     : 6600
+To       : 3141
+REPEAT 1414048510
+>decode command_return_multi.pcap
+Version  : 1
+Sequence : 2673441495
+From     : 6600
+To       : 1337
+RETURN
+Version  : 1
+Sequence : 3763195716
+From     : 6600
+To       : 871
+RETURN
+Version  : 1
+Sequence : 1512891197
+From     : 6600
+To       : 870
+RETURN
+Version  : 1
+Sequence : 1712347865
+From     : 6600
+To       : 20210
+RETURN
+>decode command_setgroup.pcap
+Version  : 1
+Sequence : 81
+From     : 6600
+To       : 24601
+SET_GROUP -1 ADD
+>decode command_status.pcap
+Version  : 1
+Sequence : 8
+From     : 7890
+To       : 1337
+GET_STATUS
+>decode command_stop_multi.pcap
+Version  : 1
+Sequence : 234880505
+From     : 6600
+To       : 2525
+STOP
+Version  : 1
+Sequence : 1017265529
+From     : 6600
+To       : 1234
+STOP
+Version  : 1
+Sequence : 1845474249
+From     : 6600
+To       : 871
+STOP
+Version  : 1
+Sequence : 4203142472
+From     : 6600
+To       : 1337
+STOP
+>decode gotos.pcap
+Version  : 1
+Sequence : 2583214523
+From     : 6600
+To       : 20210
+GOTO 32.5 101
+Version  : 1
+Sequence : 3650406360
+From     : 6600
+To       : 870
+GOTO 32.5 101
+Version  : 1
+Sequence : 1163672085
+From     : 6600
+To       : 1337
+GOTO 32.5 101
+Version  : 1
+Sequence : 1297960363
+From     : 6600
+To       : 2525
+GOTO 32.5 101
+>decode gps6.pcap
+Version  : 1
+Sequence : 1414048510
+From     : 6600
+To       : 24601
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 0 fathoms
+Bearing  : 33.9627 deg. (33° 57′ 45.82″)
+Speed    : 104.582 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 742859467
+From     : 6600
+To       : 801
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 10.9728 fathoms
+Bearing  : 43.2021 deg. (43° 12′ 7.53″)
+Speed    : 49.5954 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 400008335
+From     : 6600
+To       : 867
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 21.9456 fathoms
+Bearing  : 57.6443 deg. (57° 38′ 39.35″)
+Speed    : 27.3831 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 3558794555
+From     : 6600
+To       : 3141
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 32.9184 fathoms
+Bearing  : 78.9215 deg. (78° 55′ 17.49″)
+Speed    : 80.8218 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 342423995
+From     : 6600
+To       : 1337
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 43.8912 fathoms
+Bearing  : 176.371 deg. (176° 22′ 16.21″)
+Speed    : 88.043 km/h
+Accuracy : 2 m
+>decode gps7.pcap
+Version  : 1
+Sequence : 3907044696
+From     : 6600
+To       : 867
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 0 fathoms
+Bearing  : 119.854 deg. (119° 51′ 16.03″)
+Speed    : 79.4759 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 1056783518
+From     : 6600
+To       : 3141
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 10.9728 fathoms
+Bearing  : 51.1391 deg. (51° 8′ 20.72″)
+Speed    : 49.3447 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 631473656
+From     : 6600
+To       : 24601
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 21.9456 fathoms
+Bearing  : 5.0518 deg. (5° 3′ 6.48″)
+Speed    : 51.0333 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 3949325616
+From     : 6600
+To       : 20210
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 32.9184 fathoms
+Bearing  : 140.127 deg. (140° 7′ 38.84″)
+Speed    : 27.3406 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 143608929
+From     : 6600
+To       : 1234
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 43.8912 fathoms
+Bearing  : 57.8975 deg. (57° 53′ 50.83″)
+Speed    : 78.0798 km/h
+Accuracy : 2 m
+>decode gps8.pcap
+Version  : 1
+Sequence : 3822004001
+From     : 6600
+To       : 1337
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 0 fathoms
+Bearing  : 166.312 deg. (166° 18′ 45.00″)
+Speed    : 55.1708 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 3503081440
+From     : 6600
+To       : 1234
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 10.9728 fathoms
+Bearing  : 23.2571 deg. (23° 15′ 25.43″)
+Speed    : 95.929 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 3933910150
+From     : 6600
+To       : 867
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 21.9456 fathoms
+Bearing  : 56.6844 deg. (56° 41′ 3.70″)
+Speed    : 39.0943 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 2974284485
+From     : 6600
+To       : 3141
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 32.9184 fathoms
+Bearing  : 55.5359 deg. (55° 32′ 9.38″)
+Speed    : 12.7097 km/h
+Accuracy : 2 m
+Version  : 1
+Sequence : 3691106431
+From     : 6600
+To       : 870
+Latitude : 33.3333 deg. S (33° 19′ 59.88″ S)
+Longitude: 60.8481 deg. E (60° 50′ 53.16″ E)
+Altitude : 43.8912 fathoms
+Bearing  : 56.7155 deg. (56° 42′ 55.72″)
+Speed    : 22.775 km/h
+Accuracy : 2 m
+>decode gps.pcap
+Version  : 1
+Sequence : 81
+From     : 1337
+To       : 6600
+Latitude : 87.9183 deg. N (87° 55′ 5.83″ N)
+Longitude: 32.2345 deg. W (32° 14′ 4.28″ W)
+Altitude : 43.5 fathoms
+Bearing  : 47.8333 deg. (47° 49′ 60.00″)
+Speed    : 100 km/h
+Accuracy : 5 m
+>decode hello.pcap
+Version  : 1
+Sequence : 81
+From     : 7890
+To       : 1234
+Message  : Hello World!
+>decode status.pcap
+Version  : 1
+Sequence : 9
+From     : 1337
+To       : 7890
+Name     : ZaLgO
+HP       : 17/35
+Type     : Zergling
+Armor    : 0
+Speed    : 12.9531
+>decode status_response.pcap
+Version  : 1
+Sequence : 8
+From     : 7890
+To       : 1337
+GET_STATUS
+Version  : 1
+Sequence : 9
+From     : 1337
+To       : 7890
+Name     : ZaLgO
+HP       : 17/35
+Type     : Zergling
+Armor    : 0
+Speed    : 12.9531

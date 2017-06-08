@@ -9,9 +9,7 @@
 #define ETH_SIZE 14
 #define UDP_SIZE 0xC
 #define ZERG_SIZE 12
-
-/* Funtion Prototypes */
-void write_packet(FILE *fp);
+#define MAX_LINE_SIZE 64
 
 /* Structs for reading a pcap file */
 
@@ -34,8 +32,8 @@ typedef struct pcap_pack_header {
 } PcapPackHeader_t;
 
 typedef struct eth_header {
-    u_char eth_dhost[6];
-    u_char eth_shost[6];
+    uint8_t eth_dhost[6];
+    uint8_t eth_shost[6];
     u_short eth_type;
 } EthHeader_t;
 
@@ -69,5 +67,11 @@ typedef struct zerg_header {
     uint16_t zh_dest;
     uint32_t zh_seqid;
 } ZergHeader_t;
+
+/* Funtion Prototypes */
+void write_pcap(FILE *fp);
+void write_packet(FILE *fp);
+void read_input(FILE *fp, FILE *pfp);
+void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg);
 
 #endif
