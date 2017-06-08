@@ -7,7 +7,8 @@
 int main(int argc, char **argv)
 {
     FILE *fp;
-    long file_len;
+    long file_len, packet_end;
+    int packet_num;
     PcapHeader_t pcap;
     PcapPackHeader_t pcap_pack;
     EthHeader_t eth;
@@ -32,25 +33,33 @@ int main(int argc, char **argv)
 
     fread(&pcap, sizeof(pcap), 1, fp);
     if (pcap.magic_num == 0xa1b2c3d4) {
+#ifdef DEBUG
         printf("DEBUG: This is a pcap.\n");
         printf("DEBUG: PCAP MAGIC NUM IS %x\n", pcap.magic_num);
         printf("DEBUG: PCAP VERSION NUMBER IS %u.%u\n", pcap.version_major, pcap.version_minor);
         printf("DEBUG: FILE LENGTH IS %ld\n", file_len);
+#endif
     } else {
         fprintf(stderr, "Please supply a valid pcap file.\n");
+        fclose(fp);
         return 1;
     }
 
+    packet_num = 1;
     while (ftell(fp) < file_len) {
         fread(&pcap_pack, sizeof(pcap_pack), 1, fp);
-    #ifdef DEBUG
+        printf("*** Packet %d ***\n", packet_num);
+        packet_end = pcap_pack.recorded_len + ftell(fp);
+#ifdef DEBUG
         printf("DEBUG: PACKET EPOCH IS %u\n", pcap_pack.epoch);
         printf("DEBUG: PACKET DATA LENGTH IS %u\n", pcap_pack.recorded_len);
         printf("DEBUG: PACKET LENGTH IS %u\n", pcap_pack.orig_len);
-    #endif
+        printf("DEBUG: PACKET DATA LENGTH IS %u\n", pcap_pack.recorded_len);
+        printf("DEBUG: PACKET END SHOULD BE %lu\n", packet_end);
+#endif
 
         fread(&eth, sizeof(eth), 1, fp);
-    #ifdef DEBUG
+#ifdef DEBUG
         printf("DEBUG: ETH DEST HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
                                                 eth.eth_dhost[0],
                                                 eth.eth_dhost[1],
@@ -66,43 +75,56 @@ int main(int argc, char **argv)
                                                 eth.eth_shost[4],
                                                 eth.eth_shost[5]);
         printf("DEBUG: ETHERTYPE IS: 0x%.2x\n", eth.eth_type);
-    #endif
+#endif
 
         fread(&ip, sizeof(ip), 1, fp);
-    #ifdef DEBUG
+#ifdef DEBUG
         printf("DEBUG: IP VERSION/HL is 0x%x\n", ip.ip_vhl);
         printf("DEBUG: IP TOTAL LEN is %x\n", ip.ip_len);
         printf("DEBUG: SOURCE IP is %s\n", inet_ntoa(ip.ip_src));
         printf("DEBUG: DEST IP is %s\n", inet_ntoa(ip.ip_dst));
-    #endif
+#endif
 
         fread(&udp, sizeof(udp), 1, fp);
-    #ifdef DEBUG
+#ifdef DEBUG
         printf("DEBUG: UDP DEST PORT IS is 0x%x\n", ntohs(udp.uh_dport));
         printf("DEBUG: UDP LENGTH IS is %u\n", ntohs(udp.uh_ulen));
-    #endif
+#endif
 
         fread(&zh, sizeof(zh), 1, fp);
         printf("Version: %x\n", zh.zh_vt >> 4);
-        printf("Sequence: %d\n", ntohl(zh.zh_seqid));
+        printf("Sequence: %u\n", ntohl(zh.zh_seqid));
         printf("From: %d\n", ntohs(zh.zh_src));
         printf("To: %d\n", ntohs(zh.zh_dest));
 
         if ((zh.zh_vt & 0xFF) == 0x10) {                /* TODO: Create macro for these mask operations */
+#ifdef DEBUG
             printf("DEBUG: ZERG V 1 // TYPE 0\n");
+#endif
             z_msg_parse(fp, &zh);
         } else if ((zh.zh_vt & 0xFF) == 0x11) {
+#ifdef DEBUG
             printf("DEBUG: ZERG V 1 // TYPE 1\n");
+#endif
             z_status_parse(fp, &zh);
         } else if ((zh.zh_vt & 0xFF) == 0x12) {
+#ifdef DEBUG
             printf("DEBUG: ZERG V 1 // TYPE 2\n");
+#endif
             z_cmd_parse(fp, &zh);
         } else if ((zh.zh_vt & 0xFF) == 0x13) {
+#ifdef DEBUG
             printf("DEBUG: ZERG V 1 // TYPE 3\n");
+#endif
             z_gps_parse(fp, &zh);
         } else {
             fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);
         }
+#ifdef DEBUG
+        printf("DEBUG: FP IS AT %lu\n", ftell(fp));
+#endif
+        packet_num++;
+        fseek(fp, packet_end, SEEK_SET);
 
         /* TODO: add end of packet padding/error handling here */
     }
