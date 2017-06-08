@@ -142,12 +142,16 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
     if (len == 2) {
         /* No parameters passed */
         fread(&zcp, len, 1, fp);
+#ifdef DEBUG
         printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].cmd); /* TODO: might need to ntohs zcp_command */
+#endif
         printf("%s\n", cmds[ntohs(zcp.zcp_command)].cmd);
     } else {
         /* These commands have parameters */
         fread(&zcp, len, 1, fp);
+#ifdef DEBUG
         printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].cmd); /* TODO: might need to ntohs zcp_command */
+#endif
         printf("%s\n", cmds[ntohs(zcp.zcp_command)].cmd);
 
         switch (ntohs(zcp.zcp_command)) {
@@ -181,7 +185,6 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 break;
         }
     }
-    printf("DEBUG: REACHED END OF CMD_PARSE\n");
     return;
 }
 
