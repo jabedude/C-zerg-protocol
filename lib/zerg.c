@@ -7,29 +7,17 @@
 
 double ieee_convert64(uint64_t num)
 {
-
     uint8_t sign;
-
     uint16_t exponent;
-
     uint64_t mantisa;
-
     double result = 0;
 
-
-
     sign = num >> 63;
-
     exponent = (num >> 52 & 0x7FF) - 1023;
-
     mantisa = num & 0xFFFFFFFFFFFFF;
-
     result = (mantisa *pow(2, -52)) + 1;
-
     result *= pow(1, sign) * pow(2, exponent);
-
     return result;
-
 }
 
 double ieee_convert32(uint32_t num)
@@ -60,16 +48,21 @@ void z_msg_parse(FILE *fp, ZergHeader_t *zh)
 {
     int len = 0;
     char *msg;
-
+#ifdef DEBUG
     printf("DEBUG: TOTAL LEN IS %.2x%.2x%.2x\n", zh->zh_len[0], zh->zh_len[1], zh->zh_len[2]);
-
+#endif
     len = NTOH3(zh->zh_len);
     len -= ZERG_SIZE;
+#ifdef DEBUG
     printf("DEBUG: PAYLOAD IS %d\n", len);
+#endif
 
     msg = (char *) malloc(sizeof(char) * len);
     fread(msg, sizeof(char), len, fp);
+#ifdef DEBUG
     printf("DEBUG: MSG IS: ");
+#endif
+    printf("Message: ");
     for (int i = 0; i < len; i++) {
         printf("%c", msg[i]);
     }
@@ -143,7 +136,7 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
         /* No parameters passed */
         fread(&zcp, len, 1, fp);
         printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].cmd); /* TODO: might need to ntohs zcp_command */
-        printf("%s\n", cmds[zcp.zcp_command].cmd);
+        printf("%s\n", cmds[ntohs(zcp.zcp_command)].cmd);
     } else {
         /* These commands have parameters */
         fread(&zcp, len, 1, fp);
@@ -181,12 +174,12 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 break;
         }
     }
-
+    printf("DEBUG: REACHED END OF CMD_PARSE\n");
     return;
 }
 
 
-void z_gps_parse(FILE *fp, ZergHeader_t *zh)
+void z_gps_parse(FILE *fp, ZergHeader_t *zh) /* TODO: print degrees and seconds for lat+long i.e. (87° 55′ 5.83″ N) */
 {
     int len = 0;
     ZergGpsPayload_t zgp;
