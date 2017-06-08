@@ -127,7 +127,7 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
     ZergCommand_t cmds[] = {
         {0, "GET_STATUS"}, {1, "GOTO"},
         {2, "GET_GPS"}, {3, "NONE"},
-        {4, "RETURN"}, {5, "GET_GROUP"},
+        {4, "RETURN"}, {5, "SET_GROUP"},
         {6, "STOP"}, {7, "REPEAT"},
     };
 
