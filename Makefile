@@ -15,4 +15,4 @@ encode: encode.c pcap.o
 pcap.o: lib/pcap.c
 	$(CC) $(CFLAGS) $< -c -o obj/pcap.o
 clean:
-	rm -f bin/* obj/*
+	rm -f bin/* obj/* test.pcap
