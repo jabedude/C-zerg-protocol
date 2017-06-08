@@ -9,8 +9,10 @@ decode: decode.c zerg.o
 zerg.o: lib/zerg.c
 	$(CC) $(CFLAGS) $< -c -o obj/zerg.o
 
-encode: encode.c
-	$(CC) $(CFLAGS) $< -o bin/$@
+encode: encode.c pcap.o
+	$(CC) $(CFLAGS) encode.c obj/pcap.o -o bin/$@
 
+pcap.o: lib/pcap.c
+	$(CC) $(CFLAGS) $< -c -o obj/pcap.o
 clean:
 	rm -f bin/* obj/*

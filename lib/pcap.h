@@ -10,6 +10,9 @@
 #define UDP_SIZE 0xC
 #define ZERG_SIZE 12
 
+/* Funtion Prototypes */
+void write_packet(FILE *fp);
+
 /* Structs for reading a pcap file */
 
 typedef struct pcap_header {
