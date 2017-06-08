@@ -98,24 +98,12 @@ int main(int argc, char **argv)
         printf("To: %d\n", ntohs(zh.zh_dest));
 
         if ((zh.zh_vt & 0xFF) == 0x10) {                /* TODO: Create macro for these mask operations */
-#ifdef DEBUG
-            printf("DEBUG: ZERG V 1 // TYPE 0\n");
-#endif
             z_msg_parse(fp, &zh);
         } else if ((zh.zh_vt & 0xFF) == 0x11) {
-#ifdef DEBUG
-            printf("DEBUG: ZERG V 1 // TYPE 1\n");
-#endif
             z_status_parse(fp, &zh);
         } else if ((zh.zh_vt & 0xFF) == 0x12) {
-#ifdef DEBUG
-            printf("DEBUG: ZERG V 1 // TYPE 2\n");
-#endif
             z_cmd_parse(fp, &zh);
         } else if ((zh.zh_vt & 0xFF) == 0x13) {
-#ifdef DEBUG
-            printf("DEBUG: ZERG V 1 // TYPE 3\n");
-#endif
             z_gps_parse(fp, &zh);
         } else {
             fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);

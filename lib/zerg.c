@@ -49,6 +49,7 @@ void z_msg_parse(FILE *fp, ZergHeader_t *zh)
     int len = 0;
     char *msg;
 #ifdef DEBUG
+    printf("DEBUG: ZERG V 1 // TYPE 0\n");
     printf("DEBUG: TOTAL LEN IS %.2x%.2x%.2x\n", zh->zh_len[0], zh->zh_len[1], zh->zh_len[2]);
 #endif
     len = NTOH3(zh->zh_len);
@@ -92,7 +93,10 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
 
     len = NTOH3(zh->zh_len);
     len -= ZERG_SIZE;
+#ifdef DEBUG
+    printf("DEBUG: ZERG V 1 // TYPE 1\n");
     printf("DEBUG: PAYLOAD IS %d\n", len);
+#endif
 
     fread(&zsp, sizeof(zsp), 1, fp);
     hp = NTOH3(zsp.zsp_hp);
@@ -129,7 +133,10 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
 
     len = NTOH3(zh->zh_len);
     len -= ZERG_SIZE;
+#ifdef DEBUG
+    printf("DEBUG: ZERG V 1 // TYPE 2\n");
     printf("DEBUG: PAYLOAD IS %d\n", len);
+#endif
 
     /* TODO: try moving all reads outside of if..else */
     if (len == 2) {
@@ -178,7 +185,6 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
     return;
 }
 
-
 void z_gps_parse(FILE *fp, ZergHeader_t *zh) /* TODO: print degrees and seconds for lat+long i.e. (87° 55′ 5.83″ N) */
 {
     int len = 0;
@@ -186,7 +192,10 @@ void z_gps_parse(FILE *fp, ZergHeader_t *zh) /* TODO: print degrees and seconds 
 
     len = NTOH3(zh->zh_len);
     len -= ZERG_SIZE;
+#ifdef DEBUG
+    printf("DEBUG ZERG V 1 // TYPE 3\n");
     printf("DEBUG: PAYLOAD IS %d\n", len);
+#endif
 
     fread(&zgp, len, 1, fp);
     printf("Longitude : %f deg\n", ieee_convert64(ntoh64(zgp.zgp_long)));
