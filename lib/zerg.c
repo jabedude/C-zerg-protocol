@@ -203,7 +203,10 @@ void z_gps_parse(FILE *fp, ZergHeader_t *zh) /* TODO: print degrees and seconds 
     fread(&zgp, len, 1, fp);
     printf("Longitude : %f deg\n", ieee_convert64(ntoh64(zgp.zgp_long)));
     printf("Latitude : %f deg\n", ieee_convert64(ntoh64(zgp.zgp_lat)));
-    printf("Altitude : %f m\n", ieee_convert32(ntohl(zgp.zgp_alt)));
+    if (zgp.zgp_alt)
+        printf("Altitude : %f m\n", ieee_convert32(ntohl(zgp.zgp_alt)));
+    else
+        printf("Altitude : %d m\n", 0);
     printf("Bearing : %f deg\n", ieee_convert32(ntohl(zgp.zgp_bearing)));
     printf("Speed : %f m/s\n", ieee_convert32(ntohl(zgp.zgp_speed)));
     printf("Accuracy : %f m\n", ieee_convert32(ntohl(zgp.zgp_acc)));
