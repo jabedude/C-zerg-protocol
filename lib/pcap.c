@@ -37,9 +37,9 @@ void read_input(FILE *fp, FILE *pfp)
         zh.zh_len[1] = (len >> 8) & 0xFF;
         zh.zh_len[2] = len & 0xFF;
         zh.zh_vt = 0x10;
-        zh.zh_src = zerg_src;
-        zh.zh_dest = zerg_dst;
-        zh.zh_seqid = zerg_sequence;
+        zh.zh_src = htons(zerg_src);
+        zh.zh_dest = htons(zerg_dst);
+        zh.zh_seqid = htonl(zerg_sequence);
         write_msg(pfp, &zh, msg);
     }
 
