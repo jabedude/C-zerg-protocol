@@ -20,33 +20,6 @@ void write_pcap(FILE *fp)
     return;
 }
 
-void read_input(FILE *fp, FILE *pfp)
-{
-    uint8_t zerg_version;
-    uint16_t zerg_src, zerg_dst;
-    uint32_t zerg_sequence;
-    ZergHeader_t zh;
-    char msg[MAX_LINE_SIZE];
-
-    if (fscanf(fp, "Version : %hhu Sequence : %u From : %hu To : %hu Message : %[^\n]s",
-            &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, msg)) {
-        printf("DEBUG: VERSION IS %u -- SEQUENCE IS %u -- SOURCE IS %u -- DESTINATION IS %u -- MESSAGE IS %s\n",
-                zerg_version, zerg_sequence, zerg_src, zerg_dst, msg);
-        uint32_t len = strlen(msg);
-        len += ZERG_SIZE;
-        zh.zh_len[0] = (len >> 16) & 0xFF;
-        zh.zh_len[1] = (len >> 8) & 0xFF;
-        zh.zh_len[2] = len & 0xFF;
-        zh.zh_vt = 0x10;
-        zh.zh_src = htons(zerg_src);
-        zh.zh_dest = htons(zerg_dst);
-        zh.zh_seqid = htonl(zerg_sequence);
-        write_msg(pfp, &zh, msg);
-    }
-
-    return;
-}
-
 void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
 {
     PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
@@ -72,6 +45,44 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     fwrite(&udp, sizeof(udp), 1, pfp);
     fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
     fwrite(msg, sizeof(char), strlen(msg), pfp);
+
+    return;
+}
+
+void read_input(FILE *fp, FILE *pfp)
+{
+    uint8_t zerg_version;
+    uint16_t zerg_src, zerg_dst;
+    uint32_t zerg_sequence;
+    ZergHeader_t zh;
+    char str[MAX_LINE_SIZE];
+    uint32_t zerg_hp;
+    uint32_t zerg_max_hp;
+    uint8_t zerg_armor;
+    double zerg_speed;
+    char name[MAX_LINE_SIZE];
+
+    /* TODO: move below block to while loop down */
+    if ((fscanf(fp, "Version : %hhu Sequence : %u From : %hu To : %hu Message : %[^\n]s",
+            &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, str)) == 5) {
+        printf("DEBUG: VERSION IS %u -- SEQUENCE IS %u -- SOURCE IS %u -- DESTINATION IS %u -- MESSAGE IS %s\n",
+                zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
+        uint32_t len = strlen(str);
+        len += ZERG_SIZE;
+        zh.zh_len[0] = (len >> 16) & 0xFF;
+        zh.zh_len[1] = (len >> 8) & 0xFF;
+        zh.zh_len[2] = len & 0xFF;
+        zh.zh_vt = 0x10;
+        zh.zh_src = htons(zerg_src);
+        zh.zh_dest = htons(zerg_dst);
+        zh.zh_seqid = htonl(zerg_sequence);
+        write_msg(pfp, &zh, str);
+    }
+    rewind(fp);
+    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nHP : %u\nMax-HP : %u\nType : %[^\n]\nArmor : %hhu\nSpeed(m/s) : %lf\nName : %[^\n]", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &zerg_hp, &zerg_max_hp, str, &zerg_armor, &zerg_speed, name)) == 10) {
+
+        printf("DEBUG: THIS IS A STATUS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\nARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_version, zerg_sequence, zerg_src, zerg_dst, zerg_hp, zerg_max_hp, str, zerg_armor, zerg_speed, name);
+    }
 
     return;
 }

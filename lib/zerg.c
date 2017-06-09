@@ -104,16 +104,18 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     fread(&zsp, sizeof(zsp), 1, fp);
     hp = NTOH3(zsp.zsp_hp);
     max_hp = NTOH3(zsp.zsp_maxhp);
+#ifdef DEBUG
     printf("DEBUG: HP IS: %d\n", hp);
     printf("DEBUG: ZERG TYPE IS: %d\n", zsp.zsp_ztype);
     printf("DEBUG: NAME LENGTH IS: %d\n", len - ZERG_STAT_LEN);
-    printf("HP : %d/%u\n", hp, max_hp);
-    printf("Type: %s\n", breeds[zsp.zsp_ztype].breed);
-    printf("Armor: %u\n", zsp.zsp_armor);
-    printf("Speed: %fm/s\n", ieee_convert32(ntohl(zsp.zsp_speed))); /* TODO: Drop trailing zeros. try sprintf() */
+#endif
+    printf("HP : %d - %u\n", hp, max_hp);
+    printf("Type : %s\n", breeds[zsp.zsp_ztype].breed);
+    printf("Armor : %u\n", zsp.zsp_armor);
+    printf("Speed : %f m/s\n", ieee_convert32(ntohl(zsp.zsp_speed))); /* TODO: Drop trailing zeros. try sprintf() */
     name = (char *) malloc(sizeof(char) * len - ZERG_STAT_LEN);
     fread(name, sizeof(char), len - ZERG_STAT_LEN, fp);
-    printf("Name: ");
+    printf("Name : ");
     for (int i = 0; i < len - ZERG_STAT_LEN; i++) {
         printf("%c", name[i]);
     }
