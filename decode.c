@@ -92,10 +92,10 @@ int main(int argc, char **argv)
 #endif
 
         fread(&zh, sizeof(zh), 1, fp);
-        printf("Version: %x\n", zh.zh_vt >> 4);
-        printf("Sequence: %u\n", ntohl(zh.zh_seqid));
-        printf("From: %d\n", ntohs(zh.zh_src));
-        printf("To: %d\n", ntohs(zh.zh_dest));
+        printf("Version : %x\n", zh.zh_vt >> 4);
+        printf("Sequence : %u\n", ntohl(zh.zh_seqid));
+        printf("From : %d\n", ntohs(zh.zh_src));
+        printf("To : %d\n", ntohs(zh.zh_dest));
 
         if ((zh.zh_vt & 0xFF) == 0x10) {                /* TODO: Create macro for these mask operations */
             z_msg_parse(fp, &zh);

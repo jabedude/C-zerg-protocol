@@ -2,6 +2,7 @@
 #include <string.h>
 
 #include "pcap.h"
+#include "zerg.h"
 
 void write_pcap(FILE *fp)
 {
@@ -12,7 +13,7 @@ void write_pcap(FILE *fp)
     pcap.version_minor = 4;
     pcap.thiszone = 0;
     pcap.sigfigs = 0;
-    pcap.snaplen = 0;
+    pcap.snaplen = MAX_PACKET_CAPTURE;
     pcap.network = 1;
 
     fwrite(&pcap, sizeof(pcap), 1, fp);
@@ -48,10 +49,21 @@ void read_input(FILE *fp, FILE *pfp)
 
 void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
 {
-    PcapPackHeader_t pack;
-    EthHeader_t eth;
-    IpHeader_t ip;
-    UdpHeader_t udp;
+    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
+    EthHeader_t eth = (const EthHeader_t) {0};
+    IpHeader_t ip = (const IpHeader_t) {0};
+    UdpHeader_t udp = (const UdpHeader_t) {0};
+
+    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg);
+
+    eth.eth_type = htons(0x0800);
+
+    ip.ip_vhl = 0x45;
+    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg));
+
+    udp.uh_dport = htons(ZERG_DST_PORT);
+    udp.uh_ulen = htons(sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg));
+    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     write_pcap(pfp);
     fwrite(&pack, sizeof(pack), 1, pfp);

@@ -5,6 +5,8 @@
 
 /* Definitions */
 #define ZERG_STAT_LEN 12
+#define ZERG_DST_PORT 3751
+#define MAX_PACKET_CAPTURE 65536
 
 /* Structures */
 /* TODO: consider using same struct array for breeds and commands */

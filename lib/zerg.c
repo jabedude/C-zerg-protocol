@@ -66,7 +66,7 @@ void z_msg_parse(FILE *fp, ZergHeader_t *zh)
 #ifdef DEBUG
     printf("DEBUG: MSG IS: ");
 #endif
-    printf("Message: ");
+    printf("Message : ");
     for (int i = 0; i < len; i++) {
         printf("%c", msg[i]);
     }
