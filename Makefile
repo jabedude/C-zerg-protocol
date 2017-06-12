@@ -1,6 +1,9 @@
 CC=gcc
 CFLAGS=-Wall -Wextra -Wpedantic -Wwrite-strings -Wstack-usage=1024 -Wfloat-equal -Waggregate-return -Winline -lm
 
+debug: CFLAGS += -DDEBUG -g
+debug: all
+
 all: decode encode
 
 decode: decode.c zerg.o
