@@ -49,6 +49,35 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     return;
 }
 
+void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
+{
+    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
+    EthHeader_t eth = (const EthHeader_t) {0};
+    IpHeader_t ip = (const IpHeader_t) {0};
+    UdpHeader_t udp = (const UdpHeader_t) {0};
+
+    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) +sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name);
+
+    eth.eth_type = htons(0x0800);
+
+    ip.ip_vhl = 0x45;
+    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
+
+    udp.uh_dport = htons(ZERG_DST_PORT);
+    udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
+    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
+
+    write_pcap(pfp);
+    fwrite(&pack, sizeof(pack), 1, pfp);
+    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&ip, sizeof(ip), 1, pfp);
+    fwrite(&udp, sizeof(udp), 1, pfp);
+    fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
+    fwrite(zsp, sizeof(ZergStatPayload_t), 1, pfp);
+    fwrite(name, sizeof(char), strlen(name), pfp);
+    return;
+}
+
 void read_input(FILE *fp, FILE *pfp)
 {
     uint8_t zerg_version;
@@ -59,7 +88,6 @@ void read_input(FILE *fp, FILE *pfp)
     uint32_t zerg_hp;
     uint32_t zerg_max_hp;
     uint8_t zerg_armor;
-    float zerg_speed;
     union {
         uint32_t b;
         float f;
@@ -131,31 +159,3 @@ void read_input(FILE *fp, FILE *pfp)
     return;
 }
 
-void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
-{
-    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
-    EthHeader_t eth = (const EthHeader_t) {0};
-    IpHeader_t ip = (const IpHeader_t) {0};
-    UdpHeader_t udp = (const UdpHeader_t) {0};
-
-    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) +sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name);
-
-    eth.eth_type = htons(0x0800);
-
-    ip.ip_vhl = 0x45;
-    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
-
-    udp.uh_dport = htons(ZERG_DST_PORT);
-    udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
-    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
-
-    write_pcap(pfp);
-    fwrite(&pack, sizeof(pack), 1, pfp);
-    fwrite(&eth, sizeof(eth), 1, pfp);
-    fwrite(&ip, sizeof(ip), 1, pfp);
-    fwrite(&udp, sizeof(udp), 1, pfp);
-    fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
-    fwrite(zsp, sizeof(ZergStatPayload_t), 1, pfp);
-    fwrite(name, sizeof(char), strlen(name), pfp);
-    return;
-}
