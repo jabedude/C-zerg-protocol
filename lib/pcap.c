@@ -78,6 +78,34 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
     return;
 }
 
+void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
+{
+    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
+    EthHeader_t eth = (const EthHeader_t) {0};
+    IpHeader_t ip = (const IpHeader_t) {0};
+    UdpHeader_t udp = (const UdpHeader_t) {0};
+
+    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t);
+
+    eth.eth_type = htons(0x0800);
+
+    ip.ip_vhl = 0x45;
+    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
+
+    udp.uh_dport = htons(ZERG_DST_PORT);
+    udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
+    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
+
+    write_pcap(pfp);
+    fwrite(&pack, sizeof(pack), 1, pfp);
+    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&ip, sizeof(ip), 1, pfp);
+    fwrite(&udp, sizeof(udp), 1, pfp);
+    fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
+    fwrite(zcp, sizeof(ZergCmdPayload_t), 1, pfp);
+    return;
+}
+
 void read_input(FILE *fp, FILE *pfp)
 {
     uint8_t zerg_version;
@@ -93,6 +121,13 @@ void read_input(FILE *fp, FILE *pfp)
         float f;
     } fto32;
     char name[MAX_LINE_SIZE];
+    double longitude;
+    double latitude;
+    double altitude;
+    double bearing;
+    double speed;
+    double acc;
+
 
     /* TODO: move below block to while loop down */
     if ((fscanf(fp, "Version : %hhu Sequence : %u From : %hu To : %hu Message : %[^\n]s",
@@ -109,6 +144,8 @@ void read_input(FILE *fp, FILE *pfp)
         zh.zh_dest = htons(zerg_dst);
         zh.zh_seqid = htonl(zerg_sequence);
         write_msg(pfp, &zh, str);
+
+        return;
     }
 
     rewind(fp); /* Status */
@@ -154,6 +191,17 @@ void read_input(FILE *fp, FILE *pfp)
         }
         zsp.zsp_speed = htonl(fto32.b);
         write_stat(pfp, &zh, &zsp, name);
+
+        return;
+    }
+
+    rewind(fp); /* GPS */
+    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nLongitude : %le deg\nLatitude : %le deg\nAltitude : %le\n m\nBearing : %le deg\nSpeed : %le m/s\nAccuracy : %le m\n", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &longitude, &latitude, &altitude, &bearing, &speed, &acc)) == 10) {
+
+        printf("DEBUG: THIS IS A GPS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nLONG IS %6.4f\nLAT IS %6.4f\nALT IS %6.4f\nBEARING IS %6.4f\nSPEED IS %6.4f\nACCURACY IS %6.4f\n",
+                zerg_version, zerg_sequence, zerg_src, zerg_dst, longitude, latitude, altitude, bearing, speed, acc);
+
+        return;
     }
 
     rewind(fp); /* Command */
@@ -190,37 +238,10 @@ void read_input(FILE *fp, FILE *pfp)
         if (i % 2 == 0) {
             /* No parameters passed */
             write_cmd(pfp, &zh, &zcp);
-        } else {
+        } else { /* TODO: fix parameters */
             /* Params passed */
+            return;
         }
     }
-    return;
-}
-
-void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
-{
-    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
-    EthHeader_t eth = (const EthHeader_t) {0};
-    IpHeader_t ip = (const IpHeader_t) {0};
-    UdpHeader_t udp = (const UdpHeader_t) {0};
-
-    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t);
-
-    eth.eth_type = htons(0x0800);
-
-    ip.ip_vhl = 0x45;
-    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
-
-    udp.uh_dport = htons(ZERG_DST_PORT);
-    udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
-    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
-
-    write_pcap(pfp);
-    fwrite(&pack, sizeof(pack), 1, pfp);
-    fwrite(&eth, sizeof(eth), 1, pfp);
-    fwrite(&ip, sizeof(ip), 1, pfp);
-    fwrite(&udp, sizeof(udp), 1, pfp);
-    fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
-    fwrite(zcp, sizeof(ZergCmdPayload_t), 1, pfp);
     return;
 }

@@ -206,14 +206,14 @@ void z_gps_parse(FILE *fp, ZergHeader_t *zh) /* TODO: print degrees and seconds 
 #endif
 
     fread(&zgp, len, 1, fp);
-    printf("Longitude : %f deg\n", ieee_convert64(ntoh64(zgp.zgp_long)));
-    printf("Latitude : %f deg\n", ieee_convert64(ntoh64(zgp.zgp_lat)));
+    printf("Longitude : %6.4f deg\n", ieee_convert64(ntoh64(zgp.zgp_long)));
+    printf("Latitude : %6.4f deg\n", ieee_convert64(ntoh64(zgp.zgp_lat)));
     if (zgp.zgp_alt)
-        printf("Altitude : %f m\n", ieee_convert32(ntohl(zgp.zgp_alt)));
+        printf("Altitude : %6.4f m\n", ieee_convert32(ntohl(zgp.zgp_alt)));
     else
-        printf("Altitude : %d m\n", 0);
-    printf("Bearing : %f deg\n", ieee_convert32(ntohl(zgp.zgp_bearing)));
-    printf("Speed : %f m/s\n", ieee_convert32(ntohl(zgp.zgp_speed)));
-    printf("Accuracy : %f m\n", ieee_convert32(ntohl(zgp.zgp_acc)));
+        printf("Altitude : %6.4f m\n", 0.0);
+    printf("Bearing : %6.4f deg\n", ieee_convert32(ntohl(zgp.zgp_bearing)));
+    printf("Speed : %6.4f m/s\n", ieee_convert32(ntohl(zgp.zgp_speed)));
+    printf("Accuracy : %6.4f m\n", ieee_convert32(ntohl(zgp.zgp_acc)));
     return;
 }
