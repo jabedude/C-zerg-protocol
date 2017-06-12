@@ -60,5 +60,6 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh);
 void z_cmd_parse(FILE *fp, ZergHeader_t *zh);
 void z_gps_parse(FILE *fp, ZergHeader_t *zh);
 void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name);
+void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp);
 
 #endif

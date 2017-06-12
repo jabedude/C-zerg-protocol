@@ -111,7 +111,7 @@ void read_input(FILE *fp, FILE *pfp)
         write_msg(pfp, &zh, str);
     }
 
-    rewind(fp);
+    rewind(fp); /* Status */
     if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nHP : %u\nMax-HP : %u\nType : %[^\n]\nArmor : %hhu\nSpeed(m/s) : %f\nName : %[^\n]", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &zerg_hp, &zerg_max_hp, str, &zerg_armor, &fto32.f, name)) == 10) {
 
         printf("DEBUG: THIS IS A STATUS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\nARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_version, zerg_sequence, zerg_src, zerg_dst, zerg_hp, zerg_max_hp, str, zerg_armor, fto32.f, name);
@@ -156,6 +156,71 @@ void read_input(FILE *fp, FILE *pfp)
         write_stat(pfp, &zh, &zsp, name);
     }
 
+    rewind(fp); /* Command */
+    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\n%[^\n]", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, str)) == 5) {
+
+        printf("DEBUG: THIS IS A COMMAND PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
+                zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
+
+        ZergCmdPayload_t zcp = (const ZergCmdPayload_t) {0};
+        ZergCommand_t cmds[] = {
+            {0, "GET_STATUS"}, {1, "GOTO"},
+            {2, "GET_GPS"}, {3, "NONE"},
+            {4, "RETURN"}, {5, "SET_GROUP"},
+            {6, "STOP"}, {7, "REPEAT"},
+        };
+        uint32_t len = 2;
+        len += ZERG_SIZE;
+        zh.zh_len[0] = (len >> 16) & 0xFF;
+        zh.zh_len[1] = (len >> 8) & 0xFF;
+        zh.zh_len[2] = len & 0xFF;
+        zh.zh_vt = 0x12;
+        zh.zh_src = htons(zerg_src);
+        zh.zh_dest = htons(zerg_dst);
+        zh.zh_seqid = htonl(zerg_sequence);
+
+        int i;
+        for (i = 0; i < 16; i++) {
+            if (!strcmp(cmds[i].cmd, str)) {
+                zcp.zcp_command = htons(i);
+                break;
+            }
+            i++;
+        }
+        if (i % 2 == 0) {
+            /* No parameters passed */
+            write_cmd(pfp, &zh, &zcp);
+        } else {
+            /* Params passed */
+        }
+    }
     return;
 }
 
+void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
+{
+    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
+    EthHeader_t eth = (const EthHeader_t) {0};
+    IpHeader_t ip = (const IpHeader_t) {0};
+    UdpHeader_t udp = (const UdpHeader_t) {0};
+
+    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t);
+
+    eth.eth_type = htons(0x0800);
+
+    ip.ip_vhl = 0x45;
+    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
+
+    udp.uh_dport = htons(ZERG_DST_PORT);
+    udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
+    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
+
+    write_pcap(pfp);
+    fwrite(&pack, sizeof(pack), 1, pfp);
+    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&ip, sizeof(ip), 1, pfp);
+    fwrite(&udp, sizeof(udp), 1, pfp);
+    fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
+    fwrite(zcp, sizeof(ZergCmdPayload_t), 1, pfp);
+    return;
+}
