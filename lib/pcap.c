@@ -1,3 +1,4 @@
+#include <byteswap.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -116,17 +117,22 @@ void read_input(FILE *fp, FILE *pfp)
     uint32_t zerg_hp;
     uint32_t zerg_max_hp;
     uint8_t zerg_armor;
-    union {
+    union Fto32 {
         uint32_t b;
         float f;
-    } fto32;
+    };
+    union Fto32 stat_speed;
     char name[MAX_LINE_SIZE];
-    double longitude;
-    double latitude;
-    double altitude;
-    double bearing;
-    double speed;
-    double acc;
+    union Dto64 {
+        uint64_t b;
+        double d;
+    };
+    union Dto64 dto64;
+    union Dto64 latto64;
+    union Fto32 altitude;
+    union Fto32 bearing;
+    union Fto32 speed;
+    union Fto32 acc;
 
 
     /* TODO: move below block to while loop down */
@@ -149,9 +155,9 @@ void read_input(FILE *fp, FILE *pfp)
     }
 
     rewind(fp); /* Status */
-    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nHP : %u\nMax-HP : %u\nType : %[^\n]\nArmor : %hhu\nSpeed(m/s) : %f\nName : %[^\n]", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &zerg_hp, &zerg_max_hp, str, &zerg_armor, &fto32.f, name)) == 10) {
+    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nHP : %u\nMax-HP : %u\nType : %[^\n]\nArmor : %hhu\nSpeed(m/s) : %f\nName : %[^\n]", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &zerg_hp, &zerg_max_hp, str, &zerg_armor, &stat_speed.f, name)) == 10) {
 
-        printf("DEBUG: THIS IS A STATUS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\nARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_version, zerg_sequence, zerg_src, zerg_dst, zerg_hp, zerg_max_hp, str, zerg_armor, fto32.f, name);
+        printf("DEBUG: THIS IS A STATUS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\nARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_version, zerg_sequence, zerg_src, zerg_dst, zerg_hp, zerg_max_hp, str, zerg_armor, stat_speed.f, name);
 
         uint32_t len = strlen(name) + 12;
         len += ZERG_SIZE;
@@ -189,18 +195,35 @@ void read_input(FILE *fp, FILE *pfp)
             }
             i++;
         }
-        zsp.zsp_speed = htonl(fto32.b);
+        zsp.zsp_speed = htonl(stat_speed.b);
         write_stat(pfp, &zh, &zsp, name);
 
         return;
     }
 
     rewind(fp); /* GPS */
-    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nLongitude : %le deg\nLatitude : %le deg\nAltitude : %le\n m\nBearing : %le deg\nSpeed : %le m/s\nAccuracy : %le m\n", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &longitude, &latitude, &altitude, &bearing, &speed, &acc)) == 10) {
+    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nLongitude : %le deg\nLatitude : %le deg\nAltitude : %e\n m\nBearing : %e deg\nSpeed : %e m/s\nAccuracy : %e m\n", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &dto64.d, &latto64.d, &altitude.f, &bearing.f, &speed.f, &acc.f)) == 10) {
 
         printf("DEBUG: THIS IS A GPS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nLONG IS %6.4f\nLAT IS %6.4f\nALT IS %6.4f\nBEARING IS %6.4f\nSPEED IS %6.4f\nACCURACY IS %6.4f\n",
-                zerg_version, zerg_sequence, zerg_src, zerg_dst, longitude, latitude, altitude, bearing, speed, acc);
+                zerg_version, zerg_sequence, zerg_src, zerg_dst, dto64.d, latto64.d, altitude.f, bearing.f, speed.f, acc.f);
+        ZergGpsPayload_t zgp = (const ZergGpsPayload_t) {0};
 
+        uint32_t len = 32 + ZERG_SIZE;
+        zh.zh_len[0] = (len >> 16) & 0xFF;
+        zh.zh_len[1] = (len >> 8) & 0xFF;
+        zh.zh_len[2] = len & 0xFF;
+        zh.zh_vt = 0x13;
+        zh.zh_src = htons(zerg_src);
+        zh.zh_dest = htons(zerg_dst);
+        zh.zh_seqid = htonl(zerg_sequence);
+
+        zgp.zgp_long = bswap_64(dto64.b);
+        zgp.zgp_lat = bswap_64(latto64.b);
+        zgp.zgp_alt = htonl(altitude.b);
+        zgp.zgp_bearing = htonl(bearing.b);
+        zgp.zgp_speed = htonl(speed.b);
+        zgp.zgp_acc = htonl(acc.b);
+        write_gps(pfp, &zh, &zgp);
         return;
     }
 
@@ -243,5 +266,34 @@ void read_input(FILE *fp, FILE *pfp)
             return;
         }
     }
+
+    return;
+}
+
+void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
+{
+    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
+    EthHeader_t eth = (const EthHeader_t) {0};
+    IpHeader_t ip = (const IpHeader_t) {0};
+    UdpHeader_t udp = (const UdpHeader_t) {0};
+
+    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t);
+
+    eth.eth_type = htons(0x0800);
+
+    ip.ip_vhl = 0x45;
+    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
+
+    udp.uh_dport = htons(ZERG_DST_PORT);
+    udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
+    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
+
+    write_pcap(pfp);
+    fwrite(&pack, sizeof(pack), 1, pfp);
+    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&ip, sizeof(ip), 1, pfp);
+    fwrite(&udp, sizeof(udp), 1, pfp);
+    fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
+    fwrite(zgp, sizeof(ZergGpsPayload_t), 1, pfp);
     return;
 }
