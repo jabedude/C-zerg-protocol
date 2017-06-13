@@ -142,6 +142,7 @@ void read_input(FILE *fp, FILE *pfp)
     uint32_t zerg_sequence;
     ZergHeader_t zh;
     char str[MAX_LINE_SIZE];
+    char line[MAX_LINE_SIZE];
     uint32_t zerg_hp;
     uint32_t zerg_max_hp;
     uint8_t zerg_armor;
@@ -162,138 +163,148 @@ void read_input(FILE *fp, FILE *pfp)
     union Fto32 speed;
     union Fto32 acc;
 
-
-    /* TODO: move below block to while loop down */
-    if ((fscanf(fp, "Version : %hhu Sequence : %u From : %hu To : %hu Message : %[^\n]s",
-            &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, str)) == 5) {
-        printf("DEBUG: VERSION IS %u -- SEQUENCE IS %u -- SOURCE IS %u -- DESTINATION IS %u -- MESSAGE IS %s\n",
-                zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
-        uint32_t len = strlen(str);
-        len += ZERG_SIZE;
-        zh.zh_len[0] = (len >> 16) & 0xFF;
-        zh.zh_len[1] = (len >> 8) & 0xFF;
-        zh.zh_len[2] = len & 0xFF;
-        zh.zh_vt = 0x10;
-        zh.zh_src = htons(zerg_src);
-        zh.zh_dest = htons(zerg_dst);
-        zh.zh_seqid = htonl(zerg_sequence);
-        write_msg(pfp, &zh, str);
-
-        return;
-    }
-
-    rewind(fp); /* Status */
-    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nHP : %u\nMax-HP : %u\nType : %[^\n]\nArmor : %hhu\nSpeed(m/s) : %f\nName : %[^\n]", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &zerg_hp, &zerg_max_hp, str, &zerg_armor, &stat_speed.f, name)) == 10) {
-
-        printf("DEBUG: THIS IS A STATUS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\nARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_version, zerg_sequence, zerg_src, zerg_dst, zerg_hp, zerg_max_hp, str, zerg_armor, stat_speed.f, name);
-
-        uint32_t len = strlen(name) + 12;
-        len += ZERG_SIZE;
-        zh.zh_len[0] = (len >> 16) & 0xFF;
-        zh.zh_len[1] = (len >> 8) & 0xFF;
-        zh.zh_len[2] = len & 0xFF;
-        zh.zh_vt = 0x11;
-        zh.zh_src = htons(zerg_src);
-        zh.zh_dest = htons(zerg_dst);
-        zh.zh_seqid = htonl(zerg_sequence);
-
-        ZergStatPayload_t zsp = (const ZergStatPayload_t) {0};
-        ZergData_t breeds[] = {
-            {0, "Overmind"}, {1, "Larva"},
-            {2, "Cerebrate"}, {3, "Overlord"},
-            {4, "Queen"}, {5, "Drone"},
-            {6, "Zergling"}, {7, "Lurker"},
-            {8, "Broodling"}, {9, "Hydralisk"},
-            {10, "Guardian"}, {11, "Scourge"},
-            {12, "Ultralisk"}, {13, "Mutalisk"},
-            {14, "Defiler"}, {15, "Devourer"},
-        };
-
-        zsp.zsp_hp[0] = (zerg_hp >> 16) & 0xFF;
-        zsp.zsp_hp[1] = (zerg_hp >> 8) & 0xFF;
-        zsp.zsp_hp[2] = zerg_hp & 0xFF;
-        zsp.zsp_armor = zerg_armor;
-        zsp.zsp_maxhp[0] = (zerg_max_hp >> 16) & 0xFF;
-        zsp.zsp_maxhp[1] = (zerg_max_hp >> 8) & 0xFF;
-        zsp.zsp_maxhp[2] = zerg_max_hp & 0xFF;
-        for (int i = 0; i < 16; i++) {
-            if (!strcmp(breeds[i].data, str)) {
-                zsp.zsp_ztype = i;
-                break;
-            }
-            i++;
+    while (fgets(line, MAX_LINE_SIZE, fp)) {
+        if (sscanf(line, "Version : %hhu", &zerg_version))
+            printf("DEBUG: VERSION IS %u\n", zerg_version);
+        else if (sscanf(line, "Sequence : %u", &zerg_sequence))
+            printf("DEBUG: SEQUENCE IS %u\n", zerg_sequence);
+        else if (sscanf(line, "From : %hu", &zerg_src))
+            printf("DEBUG: SOURCE IS %u\n", zerg_src);
+        else if (sscanf(line, "To : %hu", &zerg_dst))
+            printf("DEBUG: DESTINATION IS %u\n", zerg_dst);
+        else if (sscanf(line, "Message : %[^\n]", str)) {
+            printf("DEBUG: MESSAGE IS %s\n", str);
+            uint32_t len = strlen(str);
+            len += ZERG_SIZE;
+            zh.zh_len[0] = (len >> 16) & 0xFF;
+            zh.zh_len[1] = (len >> 8) & 0xFF;
+            zh.zh_len[2] = len & 0xFF;
+            zh.zh_vt = 0x10;
+            zh.zh_src = htons(zerg_src);
+            zh.zh_dest = htons(zerg_dst);
+            zh.zh_seqid = htonl(zerg_sequence);
+            write_msg(pfp, &zh, str);
+            return; /*TODO: FP might not be at the end of this packet. test for asterik for next encode target*/
         }
-        zsp.zsp_speed = htonl(stat_speed.b);
-        write_stat(pfp, &zh, &zsp, name);
-
-        return;
-    }
-
-    rewind(fp); /* GPS */
-    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\nLongitude : %le deg\nLatitude : %le deg\nAltitude : %e\n m\nBearing : %e deg\nSpeed : %e m/s\nAccuracy : %e m\n", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, &dto64.d, &latto64.d, &altitude.f, &bearing.f, &speed.f, &acc.f)) == 10) {
-
-        printf("DEBUG: THIS IS A GPS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nLONG IS %6.4f\nLAT IS %6.4f\nALT IS %6.4f\nBEARING IS %6.4f\nSPEED IS %6.4f\nACCURACY IS %6.4f\n",
-                zerg_version, zerg_sequence, zerg_src, zerg_dst, dto64.d, latto64.d, altitude.f, bearing.f, speed.f, acc.f);
-        ZergGpsPayload_t zgp = (const ZergGpsPayload_t) {0};
-
-        uint32_t len = 32 + ZERG_SIZE;
-        zh.zh_len[0] = (len >> 16) & 0xFF;
-        zh.zh_len[1] = (len >> 8) & 0xFF;
-        zh.zh_len[2] = len & 0xFF;
-        zh.zh_vt = 0x13;
-        zh.zh_src = htons(zerg_src);
-        zh.zh_dest = htons(zerg_dst);
-        zh.zh_seqid = htonl(zerg_sequence);
-
-        zgp.zgp_long = bswap_64(dto64.b);
-        zgp.zgp_lat = bswap_64(latto64.b);
-        zgp.zgp_alt = htonl(altitude.b);
-        zgp.zgp_bearing = htonl(bearing.b);
-        zgp.zgp_speed = htonl(speed.b);
-        zgp.zgp_acc = htonl(acc.b);
-        write_gps(pfp, &zh, &zgp);
-        return;
-    }
-
-    rewind(fp); /* Command */
-    if ((fscanf(fp, "Version : %hhu\nSequence : %u\nFrom : %hu\nTo : %hu\n%[^\n]", &zerg_version, &zerg_sequence, &zerg_src, &zerg_dst, str)) == 5) {
-
-        printf("DEBUG: THIS IS A COMMAND PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
-                zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
-
-        ZergCmdPayload_t zcp = (const ZergCmdPayload_t) {0};
-        ZergData_t cmds[] = {
-            {0, "GET_STATUS"}, {1, "GOTO"},
-            {2, "GET_GPS"}, {3, "NONE"},
-            {4, "RETURN"}, {5, "SET_GROUP"},
-            {6, "STOP"}, {7, "REPEAT"},
-        };
-        uint32_t len = 2;
-        len += ZERG_SIZE;
-        zh.zh_len[0] = (len >> 16) & 0xFF;
-        zh.zh_len[1] = (len >> 8) & 0xFF;
-        zh.zh_len[2] = len & 0xFF;
-        zh.zh_vt = 0x12;
-        zh.zh_src = htons(zerg_src);
-        zh.zh_dest = htons(zerg_dst);
-        zh.zh_seqid = htonl(zerg_sequence);
-
-        int i;
-        for (i = 0; i < 16; i++) {
-            if (!strcmp(cmds[i].data, str)) {
-                zcp.zcp_command = htons(i);
-                break;
+        else if (sscanf(line, "HP : %u", &zerg_hp)) {
+            for (int i = 0; i < 5; i++) {
+                fgets(line, MAX_LINE_SIZE, fp);
+                (void) sscanf(line, "Max-HP : %u", &zerg_max_hp);
+                (void) sscanf(line, "Type : %[^\n]", str);
+                (void) sscanf(line, "Armor : %hhu", &zerg_armor);
+                (void) sscanf(line, "Speed(m/s) : %f", &stat_speed.f);
+                (void) sscanf(line, "Name : %[^\n]", name);
             }
-            i++;
+            printf("DEBUG: THIS IS A STATUS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\nARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_version, zerg_sequence, zerg_src, zerg_dst, zerg_hp, zerg_max_hp, str, zerg_armor, stat_speed.f, name);
+
+            uint32_t len = strlen(name) + 12;
+            len += ZERG_SIZE;
+            zh.zh_len[0] = (len >> 16) & 0xFF;
+            zh.zh_len[1] = (len >> 8) & 0xFF;
+            zh.zh_len[2] = len & 0xFF;
+            zh.zh_vt = 0x11;
+            zh.zh_src = htons(zerg_src);
+            zh.zh_dest = htons(zerg_dst);
+            zh.zh_seqid = htonl(zerg_sequence);
+
+            ZergStatPayload_t zsp = (const ZergStatPayload_t) {0};
+            ZergData_t breeds[] = {
+                {0, "Overmind"}, {1, "Larva"},
+                {2, "Cerebrate"}, {3, "Overlord"},
+                {4, "Queen"}, {5, "Drone"},
+                {6, "Zergling"}, {7, "Lurker"},
+                {8, "Broodling"}, {9, "Hydralisk"},
+                {10, "Guardian"}, {11, "Scourge"},
+                {12, "Ultralisk"}, {13, "Mutalisk"},
+                {14, "Defiler"}, {15, "Devourer"},
+            };
+
+            zsp.zsp_hp[0] = (zerg_hp >> 16) & 0xFF;
+            zsp.zsp_hp[1] = (zerg_hp >> 8) & 0xFF;
+            zsp.zsp_hp[2] = zerg_hp & 0xFF;
+            zsp.zsp_armor = zerg_armor;
+            zsp.zsp_maxhp[0] = (zerg_max_hp >> 16) & 0xFF;
+            zsp.zsp_maxhp[1] = (zerg_max_hp >> 8) & 0xFF;
+            zsp.zsp_maxhp[2] = zerg_max_hp & 0xFF;
+            for (int i = 0; i < 16; i++) {
+                if (!strcmp(breeds[i].data, str)) {
+                    zsp.zsp_ztype = i;
+                    break;
+                }
+                i++;
+            }
+            zsp.zsp_speed = htonl(stat_speed.b);
+            write_stat(pfp, &zh, &zsp, name);
+
+            return;
         }
-        if (i % 2 == 0) {
-            /* No parameters passed */
-            write_cmd(pfp, &zh, &zcp);
-        } else { /* TODO: fix parameters */
-            /* Params passed */
+        else if (sscanf(line, "Longitude : %le deg", &dto64.d)) {
+            for (int i = 0; i < 6; i++) {
+                fgets(line, MAX_LINE_SIZE, fp);
+                (void) sscanf(line, "Latitude : %le deg", &latto64.d);
+                (void) sscanf(line, "Altitude : %e m", &altitude.f);
+                (void) sscanf(line, "Bearing : %e deg", &bearing.f);
+                (void) sscanf(line, "Speed : %e m/s", &speed.f);
+                (void) sscanf(line, "Accuracy : %e m", &acc.f);
+            }
+            printf("DEBUG: THIS IS A GPS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nLONG IS %6.4f\nLAT IS %6.4f\nALT IS %6.4f\nBEARING IS %6.4f\nSPEED IS %6.4f\nACCURACY IS %6.4f\n",
+                    zerg_version, zerg_sequence, zerg_src, zerg_dst, dto64.d, latto64.d, altitude.f, bearing.f, speed.f, acc.f);
+            ZergGpsPayload_t zgp = (const ZergGpsPayload_t) {0};
+
+            uint32_t len = 32 + ZERG_SIZE;
+            zh.zh_len[0] = (len >> 16) & 0xFF;
+            zh.zh_len[1] = (len >> 8) & 0xFF;
+            zh.zh_len[2] = len & 0xFF;
+            zh.zh_vt = 0x13;
+            zh.zh_src = htons(zerg_src);
+            zh.zh_dest = htons(zerg_dst);
+            zh.zh_seqid = htonl(zerg_sequence);
+
+            zgp.zgp_long = bswap_64(dto64.b);
+            zgp.zgp_lat = bswap_64(latto64.b);
+            zgp.zgp_alt = htonl(altitude.b);
+            zgp.zgp_bearing = htonl(bearing.b);
+            zgp.zgp_speed = htonl(speed.b);
+            zgp.zgp_acc = htonl(acc.b);
+            write_gps(pfp, &zh, &zgp);
+            return;
+        }
+        else if (sscanf(line, "%[^\n]", str)) {
+            printf("DEBUG: THIS IS A COMMAND PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
+                    zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
+            ZergCmdPayload_t zcp = (const ZergCmdPayload_t) {0};
+            ZergData_t cmds[] = {
+                {0, "GET_STATUS"}, {1, "GOTO"},
+                {2, "GET_GPS"}, {3, "NONE"},
+                {4, "RETURN"}, {5, "SET_GROUP"},
+                {6, "STOP"}, {7, "REPEAT"},
+            };
+            uint32_t len = 2;
+            len += ZERG_SIZE;
+            zh.zh_len[0] = (len >> 16) & 0xFF;
+            zh.zh_len[1] = (len >> 8) & 0xFF;
+            zh.zh_len[2] = len & 0xFF;
+            zh.zh_vt = 0x12;
+            zh.zh_src = htons(zerg_src);
+            zh.zh_dest = htons(zerg_dst);
+            zh.zh_seqid = htonl(zerg_sequence);
+
+            int i;
+            for (i = 0; i < 16; i++) {
+                if (!strcmp(cmds[i].data, str)) {
+                    zcp.zcp_command = htons(i);
+                    break;
+                }
+            }
+            if (i % 2 == 0) {
+                /* No parameters passed */
+                write_cmd(pfp, &zh, &zcp);
+            } else { /* TODO: fix parameters */
+                /* Params passed */
+                return;
+            }
             return;
         }
     }
-
     return;
 }
