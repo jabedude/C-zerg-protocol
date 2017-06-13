@@ -279,7 +279,7 @@ void read_input(FILE *fp, FILE *pfp)
             zgp.zgp_acc = htonl(acc.b);
             write_gps(pfp, &zh, &zgp);
             printf("DEBUG: fp is at %ld\n", ftell(fp));
-            return;
+            //return;
         }
         else if (sscanf(line, "%[^\n]", str)) {
             printf("DEBUG: THIS IS A COMMAND PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
