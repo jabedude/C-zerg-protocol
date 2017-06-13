@@ -148,6 +148,7 @@ void read_input(FILE *fp, FILE *pfp)
     uint8_t zerg_armor;
     union Fto32 {
         uint32_t b;
+        int32_t i;
         float f;
     };
     union Fto32 stat_speed;
@@ -301,6 +302,33 @@ void read_input(FILE *fp, FILE *pfp)
                 write_cmd(pfp, &zh, &zcp);
             } else { /* TODO: fix parameters */
                 /* Params passed */
+                uint32_t len = 8;
+                len += ZERG_SIZE;
+                zh.zh_len[0] = (len >> 16) & 0xFF;
+                zh.zh_len[1] = (len >> 8) & 0xFF;
+                zh.zh_len[2] = len & 0xFF;
+                uint16_t param_one = 0;
+                //uint32_t param_two = 0;
+                union Fto32 param_two;
+                fgets(line, MAX_LINE_SIZE, fp);
+                if (i == 1)
+                    (void) sscanf(line, "Move %hu m at bearing %f", &param_one, &param_two.f);
+                else if (i == 5) {
+                    (void) sscanf(line, "%s to/from group ID %d", str, &param_two.i);
+                    if (!strcmp(str, "ADD"))
+                        param_one = 1;
+                    zcp.zcp_param_one = htons(param_one);
+                    zcp.zcp_param_two = ~param_two.i + 1; /*TODO: POSSIBLE HACK */
+                }
+                else if (i == 7) {
+                    (void) sscanf(line, "Re-send %u", &param_two.b);
+                    zcp.zcp_param_one = htons(param_one);
+                    zcp.zcp_param_two = htonl(param_two.b);
+                }
+
+                printf("DEBUG: PARAM ONE IS %d\n", param_one);
+                printf("DEBUG: PARAM TWO IS %f\n", param_two.f);
+                write_cmd(pfp, &zh, &zcp);
                 return;
             }
             return;
