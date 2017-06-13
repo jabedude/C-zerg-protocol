@@ -7,3 +7,4 @@ obj/*
 a.out
 test*
 *.su
+.gdb_history
