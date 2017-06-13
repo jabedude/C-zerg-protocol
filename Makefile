@@ -15,8 +15,8 @@ encode: encode.c pcap.o
 pcap.o: lib/pcap.c
 	$(CC) $(CFLAGS) $< -c -o obj/pcap.o
 
-debug: CFLAGS += -DDEBUG -g
+debug: CFLAGS += -DDEBUG -g -fstack-usage
 debug: all
 
 clean:
-	rm -f bin/* obj/* test.pcap
+	rm -f bin/* obj/* test.pcap *.su
