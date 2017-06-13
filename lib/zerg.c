@@ -166,7 +166,7 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 printf("DEBUG: PARAM 2 IS: %d\n", ntohs(zcp.zcp_param_two));
 #endif
                 /* TODO: check direction and distance. Might need to convert to precision */
-                printf("Move %d m at bearing %f.\n", ntohs(zcp.zcp_param_one), ieee_convert32(ntohl(zcp.zcp_param_two)));
+                printf("Move %d m at bearing %6.4f.\n", ntohs(zcp.zcp_param_one), ieee_convert32(ntohl(zcp.zcp_param_two)));
                 break;
             case 3 :
                 break;
