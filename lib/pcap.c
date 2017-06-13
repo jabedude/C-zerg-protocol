@@ -134,7 +134,6 @@ void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
 void read_input(FILE *fp, FILE *pfp)
 {
     int pack_num;
-    size_t file_sz;
     uint8_t zerg_version;
     uint16_t zerg_src, zerg_dst;
     uint32_t zerg_sequence;
@@ -163,6 +162,7 @@ void read_input(FILE *fp, FILE *pfp)
     union Fto32 acc;
 
     /* TODO: POSSIBLY NOT NEEDED
+    size_t file_sz;
     fseek(fp, 0, SEEK_END);
     file_sz = ftell(fp);
     rewind(fp);
