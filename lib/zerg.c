@@ -148,14 +148,14 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
         /* No parameters passed */
         fread(&zcp, len, 1, fp);
 #ifdef DEBUG
-        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data); /* TODO: might need to ntohs zcp_command */
+        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data);
 #endif
         printf("%s\n", cmds[ntohs(zcp.zcp_command)].data);
     } else {
         /* These commands have parameters */
         fread(&zcp, len, 1, fp);
 #ifdef DEBUG
-        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data); /* TODO: might need to ntohs zcp_command */
+        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data);
 #endif
         printf("%s\n", cmds[ntohs(zcp.zcp_command)].data);
 
