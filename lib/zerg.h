@@ -9,16 +9,10 @@
 #define MAX_PACKET_CAPTURE 65536
 
 /* Structures */
-/* TODO: consider using same struct array for breeds and commands */
-typedef struct zerg_breed {
+typedef struct zerg_data {
     int ind;
-    const char *breed;
-} ZergBreed_t;
-
-typedef struct zerg_command {
-    int ind;
-    const char *cmd;
-} ZergCommand_t;
+    const char *data;
+} ZergData_t;
 
 typedef struct zerg_status_payload {
     uint8_t zsp_hp[3];

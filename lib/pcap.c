@@ -170,7 +170,7 @@ void read_input(FILE *fp, FILE *pfp)
         zh.zh_seqid = htonl(zerg_sequence);
 
         ZergStatPayload_t zsp = (const ZergStatPayload_t) {0};
-        ZergBreed_t breeds[] = {
+        ZergData_t breeds[] = {
             {0, "Overmind"}, {1, "Larva"},
             {2, "Cerebrate"}, {3, "Overlord"},
             {4, "Queen"}, {5, "Drone"},
@@ -189,7 +189,7 @@ void read_input(FILE *fp, FILE *pfp)
         zsp.zsp_maxhp[1] = (zerg_max_hp >> 8) & 0xFF;
         zsp.zsp_maxhp[2] = zerg_max_hp & 0xFF;
         for (int i = 0; i < 16; i++) {
-            if (!strcmp(breeds[i].breed, str)) {
+            if (!strcmp(breeds[i].data, str)) {
                 zsp.zsp_ztype = i;
                 break;
             }
@@ -234,7 +234,7 @@ void read_input(FILE *fp, FILE *pfp)
                 zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
 
         ZergCmdPayload_t zcp = (const ZergCmdPayload_t) {0};
-        ZergCommand_t cmds[] = {
+        ZergData_t cmds[] = {
             {0, "GET_STATUS"}, {1, "GOTO"},
             {2, "GET_GPS"}, {3, "NONE"},
             {4, "RETURN"}, {5, "SET_GROUP"},
@@ -252,7 +252,7 @@ void read_input(FILE *fp, FILE *pfp)
 
         int i;
         for (i = 0; i < 16; i++) {
-            if (!strcmp(cmds[i].cmd, str)) {
+            if (!strcmp(cmds[i].data, str)) {
                 zcp.zcp_command = htons(i);
                 break;
             }

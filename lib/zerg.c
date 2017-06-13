@@ -83,7 +83,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     unsigned int max_hp = 0;
     char *name;
     ZergStatPayload_t zsp;
-    ZergBreed_t breeds[] = {
+    ZergData_t breeds[] = {
         {0, "Overmind"}, {1, "Larva"},
         {2, "Cerebrate"}, {3, "Overlord"},
         {4, "Queen"}, {5, "Drone"},
@@ -110,7 +110,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     printf("DEBUG: NAME LENGTH IS: %d\n", len - ZERG_STAT_LEN);
 #endif
     printf("HP : %d - %u\n", hp, max_hp);
-    printf("Type : %s\n", breeds[zsp.zsp_ztype].breed);
+    printf("Type : %s\n", breeds[zsp.zsp_ztype].data);
     printf("Armor : %u\n", zsp.zsp_armor);
     printf("Speed : %f m/s\n", ieee_convert32(ntohl(zsp.zsp_speed))); /* TODO: Drop trailing zeros. try sprintf() */
     name = (char *) malloc(sizeof(char) * len - ZERG_STAT_LEN);
@@ -129,7 +129,7 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
 {
     int len = 0;
     ZergCmdPayload_t zcp;
-    ZergCommand_t cmds[] = {
+    ZergData_t cmds[] = {
         {0, "GET_STATUS"}, {1, "GOTO"},
         {2, "GET_GPS"}, {3, "NONE"},
         {4, "RETURN"}, {5, "SET_GROUP"},
@@ -148,16 +148,16 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
         /* No parameters passed */
         fread(&zcp, len, 1, fp);
 #ifdef DEBUG
-        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].cmd); /* TODO: might need to ntohs zcp_command */
+        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data); /* TODO: might need to ntohs zcp_command */
 #endif
-        printf("%s\n", cmds[ntohs(zcp.zcp_command)].cmd);
+        printf("%s\n", cmds[ntohs(zcp.zcp_command)].data);
     } else {
         /* These commands have parameters */
         fread(&zcp, len, 1, fp);
 #ifdef DEBUG
-        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].cmd); /* TODO: might need to ntohs zcp_command */
+        printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data); /* TODO: might need to ntohs zcp_command */
 #endif
-        printf("%s\n", cmds[ntohs(zcp.zcp_command)].cmd);
+        printf("%s\n", cmds[ntohs(zcp.zcp_command)].data);
 
         switch (ntohs(zcp.zcp_command)) {
             case 1 :
