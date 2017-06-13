@@ -39,7 +39,6 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     udp.uh_ulen = htons(sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
-    write_pcap(pfp);
     fwrite(&pack, sizeof(pack), 1, pfp);
     fwrite(&eth, sizeof(eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
@@ -68,7 +67,6 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
-    write_pcap(pfp);
     fwrite(&pack, sizeof(pack), 1, pfp);
     fwrite(&eth, sizeof(eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
@@ -97,7 +95,6 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
-    write_pcap(pfp);
     fwrite(&pack, sizeof(pack), 1, pfp);
     fwrite(&eth, sizeof(eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
@@ -125,7 +122,6 @@ void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
-    write_pcap(pfp);
     fwrite(&pack, sizeof(pack), 1, pfp);
     fwrite(&eth, sizeof(eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
@@ -137,6 +133,8 @@ void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
 
 void read_input(FILE *fp, FILE *pfp)
 {
+    int pack_num;
+    size_t file_sz;
     uint8_t zerg_version;
     uint16_t zerg_src, zerg_dst;
     uint32_t zerg_sequence;
@@ -164,8 +162,18 @@ void read_input(FILE *fp, FILE *pfp)
     union Fto32 speed;
     union Fto32 acc;
 
+    /* TODO: POSSIBLY NOT NEEDED
+    fseek(fp, 0, SEEK_END);
+    file_sz = ftell(fp);
+    rewind(fp);
+    */
+
+    write_pcap(pfp);
+
     while (fgets(line, MAX_LINE_SIZE, fp)) {
-        if (sscanf(line, "Version : %hhu", &zerg_version))
+        if (sscanf(line, "*** Packet %d ***", &pack_num))
+            printf("DEBUG: PACKET NUMBER IS %d\n", pack_num);
+        else if (sscanf(line, "Version : %hhu", &zerg_version))
             printf("DEBUG: VERSION IS %u\n", zerg_version);
         else if (sscanf(line, "Sequence : %u", &zerg_sequence))
             printf("DEBUG: SEQUENCE IS %u\n", zerg_sequence);
@@ -185,6 +193,7 @@ void read_input(FILE *fp, FILE *pfp)
             zh.zh_dest = htons(zerg_dst);
             zh.zh_seqid = htonl(zerg_sequence);
             write_msg(pfp, &zh, str);
+            printf("DEBUG: fp is at %ld\n", ftell(fp));
             return; /*TODO: FP might not be at the end of this packet. test for asterik for next encode target*/
         }
         else if (sscanf(line, "HP : %u", &zerg_hp)) {
@@ -237,6 +246,7 @@ void read_input(FILE *fp, FILE *pfp)
             zsp.zsp_speed = htonl(stat_speed.b);
             write_stat(pfp, &zh, &zsp, name);
 
+            printf("DEBUG: fp is at %ld\n", ftell(fp));
             return;
         }
         else if (sscanf(line, "Longitude : %le deg", &dto64.d)) {
@@ -268,6 +278,7 @@ void read_input(FILE *fp, FILE *pfp)
             zgp.zgp_speed = htonl(speed.b);
             zgp.zgp_acc = htonl(acc.b);
             write_gps(pfp, &zh, &zgp);
+            printf("DEBUG: fp is at %ld\n", ftell(fp));
             return;
         }
         else if (sscanf(line, "%[^\n]", str)) {
@@ -300,6 +311,7 @@ void read_input(FILE *fp, FILE *pfp)
             if (i % 2 == 0) {
                 /* No parameters passed */
                 write_cmd(pfp, &zh, &zcp);
+                printf("DEBUG: fp is at %ld\n", ftell(fp));
             } else {
                 /* Params passed */
                 uint32_t len = 8;
@@ -311,8 +323,11 @@ void read_input(FILE *fp, FILE *pfp)
                 //uint32_t param_two = 0;
                 union Fto32 param_two;
                 fgets(line, MAX_LINE_SIZE, fp);
-                if (i == 1)
+                if (i == 1) {
                     (void) sscanf(line, "Move %hu m at bearing %f", &param_one, &param_two.f);
+                    zcp.zcp_param_one = htons(param_one);
+                    zcp.zcp_param_two = htonl(param_two.b);
+                }
                 else if (i == 5) {
                     (void) sscanf(line, "%s to/from group ID %d", str, &param_two.i);
                     if (!strcmp(str, "ADD"))
@@ -329,9 +344,10 @@ void read_input(FILE *fp, FILE *pfp)
                 printf("DEBUG: PARAM ONE IS %d\n", param_one);
                 printf("DEBUG: PARAM TWO IS %f\n", param_two.f);
                 write_cmd(pfp, &zh, &zcp);
-                return;
+                printf("DEBUG: fp is at %ld\n", ftell(fp));
+                //return; /* TODO: WHY ARE THREE RETURNS NEEDED?? */
             }
-            return;
+            //return;
         }
     }
     return;
