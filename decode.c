@@ -114,7 +114,6 @@ int main(int argc, char **argv)
         packet_num++;
         fseek(fp, packet_end, SEEK_SET);
 
-        /* TODO: add end of packet padding/error handling here */
     }
     fclose(fp);
     return 0;
