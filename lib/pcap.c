@@ -300,7 +300,7 @@ void read_input(FILE *fp, FILE *pfp)
             if (i % 2 == 0) {
                 /* No parameters passed */
                 write_cmd(pfp, &zh, &zcp);
-            } else { /* TODO: fix parameters */
+            } else {
                 /* Params passed */
                 uint32_t len = 8;
                 len += ZERG_SIZE;
