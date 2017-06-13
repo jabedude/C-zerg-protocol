@@ -107,6 +107,34 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
     return;
 }
 
+void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
+{
+    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
+    EthHeader_t eth = (const EthHeader_t) {0};
+    IpHeader_t ip = (const IpHeader_t) {0};
+    UdpHeader_t udp = (const UdpHeader_t) {0};
+
+    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t);
+
+    eth.eth_type = htons(0x0800);
+
+    ip.ip_vhl = 0x45;
+    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
+
+    udp.uh_dport = htons(ZERG_DST_PORT);
+    udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
+    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
+
+    write_pcap(pfp);
+    fwrite(&pack, sizeof(pack), 1, pfp);
+    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&ip, sizeof(ip), 1, pfp);
+    fwrite(&udp, sizeof(udp), 1, pfp);
+    fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
+    fwrite(zgp, sizeof(ZergGpsPayload_t), 1, pfp);
+    return;
+}
+
 void read_input(FILE *fp, FILE *pfp)
 {
     uint8_t zerg_version;
@@ -267,33 +295,5 @@ void read_input(FILE *fp, FILE *pfp)
         }
     }
 
-    return;
-}
-
-void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
-{
-    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
-    EthHeader_t eth = (const EthHeader_t) {0};
-    IpHeader_t ip = (const IpHeader_t) {0};
-    UdpHeader_t udp = (const UdpHeader_t) {0};
-
-    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t);
-
-    eth.eth_type = htons(0x0800);
-
-    ip.ip_vhl = 0x45;
-    ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
-
-    udp.uh_dport = htons(ZERG_DST_PORT);
-    udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
-    /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
-
-    write_pcap(pfp);
-    fwrite(&pack, sizeof(pack), 1, pfp);
-    fwrite(&eth, sizeof(eth), 1, pfp);
-    fwrite(&ip, sizeof(ip), 1, pfp);
-    fwrite(&udp, sizeof(udp), 1, pfp);
-    fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
-    fwrite(zgp, sizeof(ZergGpsPayload_t), 1, pfp);
     return;
 }
