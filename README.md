@@ -2,6 +2,7 @@ Codec
 
 - [x] Flourish: man(1) page for decode(1) and encode(1).
 - [x] Flourish: GPS output prints Degrees - Minutes - Seconds (DMS)
+- [x] Flourish: IP Checksum calculation
 
 # Building
 ```
