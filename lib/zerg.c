@@ -194,7 +194,7 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
     return;
 }
 
-void z_gps_parse(FILE *fp, ZergHeader_t *zh) /* TODO: print degrees and seconds for lat+long i.e. (87° 55′ 5.83″ N) */
+void z_gps_parse(FILE *fp, ZergHeader_t *zh)
 {
     int len = 0;
     ZergGpsPayload_t zgp;
