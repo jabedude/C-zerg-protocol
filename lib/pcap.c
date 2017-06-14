@@ -5,6 +5,12 @@
 #include "pcap.h"
 #include "zerg.h"
 
+/* STATIC TEMPLATES */
+static const PcapPackHeader_t st_pack = {0x582b59dc, 0x000701d2, 0x00000000, 0x00000000};
+static const EthHeader_t st_eth = {{0xea, 0x7e, 0xa7, 0xfa, 0x55, 0xc5}, {0xea, 0x7e, 0xa7, 0x8e, 0x16, 0x48}, 0x0008};
+static const IpHeader_t st_ip = {0x45, 0x00, 0x0000, 0x0000, 0x00, 0x00, 0x11, 0x0000, {0x720f000a}, {0x3015000a}};
+static const UdpHeader_t st_udp = {0x4281, 0xa70e, 0x0000, 0x0000};
+
 void write_pcap(FILE *fp)
 {
     PcapHeader_t pcap;
@@ -23,24 +29,20 @@ void write_pcap(FILE *fp)
 
 void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
 {
-    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
-    EthHeader_t eth = (const EthHeader_t) {0};
-    IpHeader_t ip = (const IpHeader_t) {0};
-    UdpHeader_t udp = (const UdpHeader_t) {0};
+    PcapPackHeader_t pack = st_pack;
+    IpHeader_t ip = st_ip;
+    UdpHeader_t udp = st_udp;
 
-    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg);
+    pack.recorded_len = sizeof(st_eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg);
+    pack.orig_len = pack.recorded_len;
 
-    eth.eth_type = htons(0x0800);
-
-    ip.ip_vhl = 0x45;
     ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg));
 
-    udp.uh_dport = htons(ZERG_DST_PORT);
     udp.uh_ulen = htons(sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     fwrite(&pack, sizeof(pack), 1, pfp);
-    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&st_eth, sizeof(st_eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
     fwrite(&udp, sizeof(udp), 1, pfp);
     fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
@@ -51,24 +53,25 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
 
 void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
 {
-    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
-    EthHeader_t eth = (const EthHeader_t) {0};
-    IpHeader_t ip = (const IpHeader_t) {0};
-    UdpHeader_t udp = (const UdpHeader_t) {0};
+    PcapPackHeader_t pack = st_pack;
+    IpHeader_t ip = st_ip;
+    UdpHeader_t udp = st_udp;
 
-    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) +sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name);
+    pack.recorded_len = sizeof(st_eth) +
+                        sizeof(ip) +
+                        sizeof(udp) +
+                        sizeof(ZergHeader_t) +
+                        sizeof(ZergStatPayload_t) +
+                        strlen(name);
+    pack.orig_len = pack.recorded_len;
 
-    eth.eth_type = htons(0x0800);
-
-    ip.ip_vhl = 0x45;
     ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
 
-    udp.uh_dport = htons(ZERG_DST_PORT);
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     fwrite(&pack, sizeof(pack), 1, pfp);
-    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&st_eth, sizeof(st_eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
     fwrite(&udp, sizeof(udp), 1, pfp);
     fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
@@ -79,24 +82,20 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
 
 void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
 {
-    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
-    EthHeader_t eth = (const EthHeader_t) {0};
-    IpHeader_t ip = (const IpHeader_t) {0};
-    UdpHeader_t udp = (const UdpHeader_t) {0};
+    PcapPackHeader_t pack = st_pack;
+    IpHeader_t ip = st_ip;
+    UdpHeader_t udp = st_udp;
 
-    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t);
+    pack.recorded_len = sizeof(st_eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t);
+    pack.orig_len = pack.recorded_len;
 
-    eth.eth_type = htons(0x0800);
-
-    ip.ip_vhl = 0x45;
     ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
 
-    udp.uh_dport = htons(ZERG_DST_PORT);
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     fwrite(&pack, sizeof(pack), 1, pfp);
-    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&st_eth, sizeof(st_eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
     fwrite(&udp, sizeof(udp), 1, pfp);
     fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
@@ -106,24 +105,20 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
 
 void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
 {
-    PcapPackHeader_t pack = (const PcapPackHeader_t) {0};
-    EthHeader_t eth = (const EthHeader_t) {0};
-    IpHeader_t ip = (const IpHeader_t) {0};
-    UdpHeader_t udp = (const UdpHeader_t) {0};
+    PcapPackHeader_t pack = st_pack;
+    IpHeader_t ip = st_ip;
+    UdpHeader_t udp = st_udp;
 
-    pack.recorded_len = sizeof(eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t);
+    pack.recorded_len = sizeof(st_eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t);
+    pack.orig_len = pack.recorded_len;
 
-    eth.eth_type = htons(0x0800);
-
-    ip.ip_vhl = 0x45;
     ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
 
-    udp.uh_dport = htons(ZERG_DST_PORT);
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     fwrite(&pack, sizeof(pack), 1, pfp);
-    fwrite(&eth, sizeof(eth), 1, pfp);
+    fwrite(&st_eth, sizeof(st_eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
     fwrite(&udp, sizeof(udp), 1, pfp);
     fwrite(zh, sizeof(ZergHeader_t), 1, pfp);
