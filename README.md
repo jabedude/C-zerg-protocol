@@ -37,7 +37,7 @@ From : 7890
 To : 1234
 Message : Hello World!
 ```
-## Encode:
+## Encoder:
 ```
 $ cat > example.txt << EOF
 >*** Packet 1 ***
