@@ -12,6 +12,27 @@ static const EthHeader_t st_eth = {{0xea, 0x7e, 0xa7, 0xfa, 0x55, 0xc5}, {0xea, 
 static const IpHeader_t st_ip = {0x45, 0x00, 0x0000, 0x0000, 0x00, 0x00, 0x11, 0x0000, {0x720f000a}, {0x3015000a}};
 static const UdpHeader_t st_udp = {0x4281, 0xa70e, 0x0000, 0x0000};
 
+static uint16_t ip_checksum(const void *ip, size_t len)
+{
+    /* http://www.netfor2.com/ipsum.htm */
+    unsigned long sum = 0;
+    const uint16_t *ip1;
+
+    ip1 = ip;
+    while (len > 1)
+    {
+        sum += *ip1++;
+        if (sum & 0x80000000)
+            sum = (sum & 0xFFFF) + (sum >> 16);
+        len -= 2;
+    }
+
+    while (sum >> 16)
+        sum = (sum & 0xFFFF) + (sum >> 16);
+
+    return(~sum);
+}
+
 void write_pcap(FILE *fp)
 {
     fwrite(&st_pcap, sizeof(st_pcap), 1, fp);
@@ -28,6 +49,7 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     pack.orig_len = pack.recorded_len;
 
     ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg));
+    ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + sizeof(ZergHeader_t) + strlen(msg));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
@@ -57,6 +79,7 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
     pack.orig_len = pack.recorded_len;
 
     ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
+    ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + strlen(name));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
@@ -81,6 +104,7 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
     pack.orig_len = pack.recorded_len;
 
     ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
+    ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
@@ -104,6 +128,7 @@ void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
     pack.orig_len = pack.recorded_len;
 
     ip.ip_len = htons(sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
+    ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
