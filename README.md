@@ -31,6 +31,7 @@ Message : Hello World!
 ## Encode:
 ```
 $ cat > example.txt << EOF
+>*** Packet 1 ***
 >Version : 1
 >Sequence : 81
 >From : 7890
