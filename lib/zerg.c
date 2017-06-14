@@ -112,7 +112,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     printf("HP : %d - %u\n", hp, max_hp);
     printf("Type : %s\n", breeds[zsp.zsp_ztype].data);
     printf("Armor : %u\n", zsp.zsp_armor);
-    printf("Speed : %f m/s\n", ieee_convert32(ntohl(zsp.zsp_speed))); /* TODO: Drop trailing zeros. try sprintf() */
+    printf("Speed : %6.4f m/s\n", ieee_convert32(ntohl(zsp.zsp_speed))); /* TODO: Drop trailing zeros. try sprintf() */
     name = (char *) malloc(sizeof(char) * len - ZERG_STAT_LEN);
     fread(name, sizeof(char), len - ZERG_STAT_LEN, fp);
     printf("Name : ");
