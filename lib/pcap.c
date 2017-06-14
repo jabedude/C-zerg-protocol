@@ -309,7 +309,7 @@ void read_input(FILE *fp, FILE *pfp)
                     if (!strcmp(str, "ADD"))
                         param_one = 1;
                     zcp.zcp_param_one = htons(param_one);
-                    zcp.zcp_param_two = ~param_two.i + 1; /*TODO: POSSIBLE HACK */
+                    zcp.zcp_param_two = ~param_two.i + 1;
                 }
                 else if (i == 7) {
                     (void) sscanf(line, "Re-send %u", &param_two.b);
