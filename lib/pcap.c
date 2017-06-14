@@ -173,7 +173,6 @@ void read_input(FILE *fp, FILE *pfp)
             zh.zh_seqid = htonl(zerg_sequence);
             write_msg(pfp, &zh, str);
             printf("DEBUG: fp is at %ld\n", ftell(fp));
-            return; /*TODO: FP might not be at the end of this packet. test for asterik for next encode target*/
         }
         else if (sscanf(line, "HP : %u", &zerg_hp)) {
             for (int i = 0; i < 5; i++) {
