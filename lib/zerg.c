@@ -7,6 +7,7 @@
 
 double ieee_convert64(uint64_t num)
 {
+    /* All credit to droberts */
     uint8_t sign;
     uint16_t exponent;
     uint64_t mantisa;
@@ -22,6 +23,7 @@ double ieee_convert64(uint64_t num)
 
 double ieee_convert32(uint32_t num)
 {
+    /* All credit to droberts */
     uint8_t sign, exponent;
     uint32_t mantisa;
     double result = 0;
