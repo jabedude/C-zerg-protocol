@@ -147,13 +147,6 @@ void read_input(FILE *fp, FILE *pfp)
     union Fto32 speed;
     union Fto32 acc;
 
-    /* TODO: POSSIBLY NOT NEEDED
-    size_t file_sz;
-    fseek(fp, 0, SEEK_END);
-    file_sz = ftell(fp);
-    rewind(fp);
-    */
-
     write_pcap(pfp);
 
     while (fgets(line, MAX_LINE_SIZE, fp)) {
