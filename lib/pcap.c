@@ -201,7 +201,7 @@ void read_input(FILE *fp, FILE *pfp)
         }
         else if (sscanf(line, "HP : %u", &zerg_hp)) {
             for (int i = 0; i < 5; i++) {
-                fgets(line, MAX_LINE_SIZE, fp);
+                (void) fgets(line, MAX_LINE_SIZE, fp);
                 (void) sscanf(line, "Max-HP : %u", &zerg_max_hp);
                 (void) sscanf(line, "Type : %[^\n]", str);
                 (void) sscanf(line, "Armor : %hhu", &zerg_armor);
@@ -253,7 +253,7 @@ void read_input(FILE *fp, FILE *pfp)
         }
         else if (sscanf(line, "Longitude : %le deg", &dto64.d)) {
             for (int i = 0; i < 8; i++) {
-                fgets(line, MAX_LINE_SIZE, fp);
+                (void) fgets(line, MAX_LINE_SIZE, fp);
                 (void) sscanf(line, "Latitude : %le deg", &latto64.d);
                 (void) sscanf(line, "Altitude : %e m", &altitude.f);
                 (void) sscanf(line, "Bearing : %e deg", &bearing.f);
@@ -323,7 +323,7 @@ void read_input(FILE *fp, FILE *pfp)
                 uint16_t param_one = 0;
                 //uint32_t param_two = 0;
                 union Fto32 param_two;
-                fgets(line, MAX_LINE_SIZE, fp);
+                (void) fgets(line, MAX_LINE_SIZE, fp);
                 if (i == 1) {
                     (void) sscanf(line, "Move %hu m at bearing %f", &param_one, &param_two.f);
                     zcp.zcp_param_one = htons(param_one);

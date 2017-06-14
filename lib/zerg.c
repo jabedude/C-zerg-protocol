@@ -64,7 +64,7 @@ void z_msg_parse(FILE *fp, ZergHeader_t *zh)
     if (!msg) {
         fprintf(stderr, "MALLOC ERROR!\n");
     }
-    fread(msg, sizeof(char), len, fp);
+    (void) fread(msg, sizeof(char), len, fp);
 #ifdef DEBUG
     printf("DEBUG: MSG IS: ");
 #endif
@@ -103,7 +103,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     printf("DEBUG: PAYLOAD IS %d\n", len);
 #endif
 
-    fread(&zsp, sizeof(zsp), 1, fp);
+    (void) fread(&zsp, sizeof(zsp), 1, fp);
     hp = NTOH3(zsp.zsp_hp);
     max_hp = NTOH3(zsp.zsp_maxhp);
 #ifdef DEBUG
@@ -117,7 +117,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     printf("Armor : %u\n", zsp.zsp_armor);
     printf("Speed(m/s) : %6.4f\n", ieee_convert32(ntohl(zsp.zsp_speed)));
     name = (char *) malloc(sizeof(char) * len - ZERG_STAT_LEN);
-    fread(name, sizeof(char), len - ZERG_STAT_LEN, fp);
+    (void) fread(name, sizeof(char), len - ZERG_STAT_LEN, fp);
     printf("Name : ");
     for (int i = 0; i < len - ZERG_STAT_LEN; i++) {
         printf("%c", name[i]);
@@ -148,14 +148,14 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
 
     if (len == 2) {
         /* No parameters passed */
-        fread(&zcp, len, 1, fp);
+        (void) fread(&zcp, len, 1, fp);
 #ifdef DEBUG
         printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data);
 #endif
         printf("%s\n", cmds[ntohs(zcp.zcp_command)].data);
     } else {
         /* These commands have parameters */
-        fread(&zcp, len, 1, fp);
+        (void) fread(&zcp, len, 1, fp);
 #ifdef DEBUG
         printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data);
 #endif
@@ -209,7 +209,7 @@ void z_gps_parse(FILE *fp, ZergHeader_t *zh)
     printf("DEBUG: PAYLOAD IS %d\n", len);
 #endif
 
-    fread(&zgp, len, 1, fp);
+    (void) fread(&zgp, len, 1, fp);
     longitude = ieee_convert64(ntoh64(zgp.zgp_long));
     latitude = ieee_convert64(ntoh64(zgp.zgp_lat));
 

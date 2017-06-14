@@ -31,7 +31,7 @@ int main(int argc, char **argv)
     file_len = ftell(fp);
     rewind(fp);
 
-    fread(&pcap, sizeof(pcap), 1, fp);
+    (void) fread(&pcap, sizeof(pcap), 1, fp);
     if (pcap.magic_num == 0xa1b2c3d4) {
 #ifdef DEBUG
         printf("DEBUG: This is a pcap.\n");
@@ -47,7 +47,7 @@ int main(int argc, char **argv)
 
     packet_num = 1;
     while (ftell(fp) < file_len) {
-        fread(&pcap_pack, sizeof(pcap_pack), 1, fp);
+        (void) fread(&pcap_pack, sizeof(pcap_pack), 1, fp);
         printf("*** Packet %d ***\n", packet_num);
         packet_end = pcap_pack.recorded_len + ftell(fp);
 #ifdef DEBUG
@@ -58,7 +58,7 @@ int main(int argc, char **argv)
         printf("DEBUG: PACKET END SHOULD BE %lu\n", packet_end);
 #endif
 
-        fread(&eth, sizeof(eth), 1, fp);
+        (void) fread(&eth, sizeof(eth), 1, fp);
 #ifdef DEBUG
         printf("DEBUG: ETH DEST HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
                                                 eth.eth_dhost[0],
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
         printf("DEBUG: ETHERTYPE IS: 0x%.2x\n", eth.eth_type);
 #endif
 
-        fread(&ip, sizeof(ip), 1, fp);
+        (void) fread(&ip, sizeof(ip), 1, fp);
 #ifdef DEBUG
         printf("DEBUG: IP VERSION/HL is 0x%x\n", ip.ip_vhl);
         printf("DEBUG: IP TOTAL LEN is %x\n", ip.ip_len);
@@ -85,13 +85,13 @@ int main(int argc, char **argv)
         printf("DEBUG: DEST IP is %s\n", inet_ntoa(ip.ip_dst));
 #endif
 
-        fread(&udp, sizeof(udp), 1, fp);
+        (void) fread(&udp, sizeof(udp), 1, fp);
 #ifdef DEBUG
         printf("DEBUG: UDP DEST PORT IS is 0x%x\n", ntohs(udp.uh_dport));
         printf("DEBUG: UDP LENGTH IS is %u\n", ntohs(udp.uh_ulen));
 #endif
 
-        fread(&zh, sizeof(zh), 1, fp);
+        (void) fread(&zh, sizeof(zh), 1, fp);
         printf("Version : %x\n", zh.zh_vt >> 4);
         printf("Sequence : %u\n", ntohl(zh.zh_seqid));
         printf("From : %d\n", ntohs(zh.zh_src));
