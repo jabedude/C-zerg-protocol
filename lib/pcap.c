@@ -221,7 +221,7 @@ void read_input(FILE *fp, FILE *pfp)
             zh.zh_seqid = htonl(zerg_sequence);
 
             ZergStatPayload_t zsp = (const ZergStatPayload_t) {0};
-            ZergData_t breeds[] = {
+            const ZergData_t breeds[] = {
                 {0, "Overmind"}, {1, "Larva"},
                 {2, "Cerebrate"}, {3, "Overlord"},
                 {4, "Queen"}, {5, "Drone"},
@@ -286,7 +286,7 @@ void read_input(FILE *fp, FILE *pfp)
             printf("DEBUG: THIS IS A COMMAND PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
                     zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
             ZergCmdPayload_t zcp = (const ZergCmdPayload_t) {0};
-            ZergData_t cmds[] = {
+            const ZergData_t cmds[] = {
                 {0, "GET_STATUS"}, {1, "GOTO"},
                 {2, "GET_GPS"}, {3, "NONE"},
                 {4, "RETURN"}, {5, "SET_GROUP"},

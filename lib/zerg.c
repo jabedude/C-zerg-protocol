@@ -86,7 +86,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     unsigned int max_hp = 0;
     char *name;
     ZergStatPayload_t zsp;
-    ZergData_t breeds[] = {
+    const ZergData_t breeds[] = {
         {0, "Overmind"}, {1, "Larva"},
         {2, "Cerebrate"}, {3, "Overlord"},
         {4, "Queen"}, {5, "Drone"},
@@ -134,7 +134,7 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
 {
     int len = 0;
     ZergCmdPayload_t zcp;
-    ZergData_t cmds[] = {
+    const ZergData_t cmds[] = {
         {0, "GET_STATUS"}, {1, "GOTO"},
         {2, "GET_GPS"}, {3, "NONE"},
         {4, "RETURN"}, {5, "SET_GROUP"},
