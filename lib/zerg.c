@@ -120,7 +120,8 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     (void) fread(name, sizeof(char), len - ZERG_STAT_LEN, fp);
     printf("Name : ");
     for (int i = 0; i < len - ZERG_STAT_LEN; i++) {
-        printf("%c", name[i]);
+        //printf("%c", name[i]);
+        putchar(name[i]);
     }
     putchar('\n');
 

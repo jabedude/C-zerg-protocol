@@ -97,6 +97,25 @@ int main(int argc, char **argv)
         printf("From : %d\n", ntohs(zh.zh_src));
         printf("To : %d\n", ntohs(zh.zh_dest));
 
+        uint8_t type = zh.zh_vt & 0xFF;
+        switch (type) {
+            case 0x10 :
+                z_msg_parse(fp, &zh);
+                break;
+            case 0x11 :
+                z_status_parse(fp, &zh);
+                break;
+            case 0x12 :
+                z_cmd_parse(fp, &zh);
+                break;
+            case 0x13 :
+                z_gps_parse(fp, &zh);
+                break;
+            default :
+                fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);
+                break;
+        }
+        /* TODO: remove if neccesary
         if ((zh.zh_vt & 0xFF) == 0x10) {
             z_msg_parse(fp, &zh);
         } else if ((zh.zh_vt & 0xFF) == 0x11) {
@@ -108,6 +127,7 @@ int main(int argc, char **argv)
         } else {
             fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);
         }
+        */
 #ifdef DEBUG
         printf("DEBUG: FP IS AT %lu\n", ftell(fp));
 #endif
