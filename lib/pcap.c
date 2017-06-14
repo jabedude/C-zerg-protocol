@@ -227,7 +227,7 @@ void read_input(FILE *fp, FILE *pfp)
             printf("DEBUG: fp is at %ld\n", ftell(fp));
         }
         else if (sscanf(line, "Longitude : %le deg", &dto64.d)) {
-            for (int i = 0; i < 6; i++) {
+            for (int i = 0; i < 8; i++) {
                 fgets(line, MAX_LINE_SIZE, fp);
                 (void) sscanf(line, "Latitude : %le deg", &latto64.d);
                 (void) sscanf(line, "Altitude : %e m", &altitude.f);

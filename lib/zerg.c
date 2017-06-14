@@ -167,7 +167,6 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
                 printf("DEBUG: PARAM 2 IS: %d\n", ntohs(zcp.zcp_param_two));
 #endif
-                /* TODO: check direction and distance. Might need to convert to precision */
                 printf("Move %d m at bearing %6.4f\n", ntohs(zcp.zcp_param_one), ieee_convert32(ntohl(zcp.zcp_param_two)));
                 break;
             case 3 :
@@ -209,7 +208,17 @@ void z_gps_parse(FILE *fp, ZergHeader_t *zh) /* TODO: print degrees and seconds 
 
     fread(&zgp, len, 1, fp);
     printf("Longitude : %6.4f deg\n", ieee_convert64(ntoh64(zgp.zgp_long)));
+    int degrees, minutes;
+    float seconds;
+    degrees = (int) ieee_convert64(ntoh64(zgp.zgp_long));
+    minutes = (int) ((ieee_convert64(ntoh64(zgp.zgp_long)) - degrees) * 60);
+    seconds = (((ieee_convert64(ntoh64(zgp.zgp_long)))) - degrees - (float) minutes / 60) * 3600;
+    printf("%d° %d' %6.4f\"\n", degrees, minutes, seconds);
     printf("Latitude : %6.4f deg\n", ieee_convert64(ntoh64(zgp.zgp_lat)));
+    degrees = (int) ieee_convert64(ntoh64(zgp.zgp_lat));
+    minutes = (int) ((ieee_convert64(ntoh64(zgp.zgp_lat)) - degrees) * 60);
+    seconds = (((ieee_convert64(ntoh64(zgp.zgp_lat)))) - degrees - (float) minutes / 60) * 3600;
+    printf("%d° %d' %6.4f\"\n", degrees, minutes, seconds);
     if (zgp.zgp_alt)
         printf("Altitude : %6.4f m\n", ieee_convert32(ntohl(zgp.zgp_alt)));
     else
