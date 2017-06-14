@@ -146,7 +146,6 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
     printf("DEBUG: PAYLOAD IS %d\n", len);
 #endif
 
-    /* TODO: try moving all reads outside of if..else */
     if (len == 2) {
         /* No parameters passed */
         fread(&zcp, len, 1, fp);
