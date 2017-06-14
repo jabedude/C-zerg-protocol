@@ -70,7 +70,8 @@ void z_msg_parse(FILE *fp, ZergHeader_t *zh)
 #endif
     printf("Message : ");
     for (int i = 0; i < len; i++) {
-        printf("%c", msg[i]);
+        //printf("%c", msg[i]);
+        putchar(msg[i]);
     }
     putchar('\n');
 
