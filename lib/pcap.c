@@ -225,7 +225,6 @@ void read_input(FILE *fp, FILE *pfp)
             write_stat(pfp, &zh, &zsp, name);
 
             printf("DEBUG: fp is at %ld\n", ftell(fp));
-            return;
         }
         else if (sscanf(line, "Longitude : %le deg", &dto64.d)) {
             for (int i = 0; i < 6; i++) {
