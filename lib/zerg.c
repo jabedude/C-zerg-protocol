@@ -102,7 +102,8 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     int len = 0;
     int hp = 0;
     unsigned int max_hp = 0;
-    char *name;
+    //char *name;
+    char name[128];
     ZergStatPayload_t zsp;
 
     len = NTOH3(zh->zh_len);
@@ -125,7 +126,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     printf("Type : %s\n", breeds[zsp.zsp_ztype].data);
     printf("Armor : %u\n", zsp.zsp_armor);
     printf("Speed(m/s) : %6.4f\n", ieee_convert32(ntohl(zsp.zsp_speed)));
-    name = (char *) malloc(sizeof(char) * len - ZERG_STAT_LEN);
+    //name = (char *) malloc(sizeof(char) * len - ZERG_STAT_LEN);
     (void) fread(name, sizeof(char), len - ZERG_STAT_LEN, fp);
     printf("Name : ");
     for (int i = 0; i < len - ZERG_STAT_LEN; i++) {
@@ -134,7 +135,7 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     }
     putchar('\n');
 
-    free(name);
+    //free(name);
     return;
 }
 
@@ -162,24 +163,18 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
         (void) fread(&zcp, len, 1, fp);
 #ifdef DEBUG
         printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data);
+        printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
+        printf("DEBUG: PARAM 2 IS: %d\n", ntohl(zcp.zcp_param_two));
 #endif
         printf("%s\n", cmds[ntohs(zcp.zcp_command)].data);
 
         switch (ntohs(zcp.zcp_command)) {
             case 1 :
-#ifdef DEBUG
-                printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
-                printf("DEBUG: PARAM 2 IS: %d\n", ntohs(zcp.zcp_param_two));
-#endif
                 printf("Move %d m at bearing %6.4f\n", ntohs(zcp.zcp_param_one), ieee_convert32(ntohl(zcp.zcp_param_two)));
                 break;
             case 3 :
                 break;
             case 5 :
-#ifdef DEBUG
-                printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
-                printf("DEBUG: PARAM 2 IS: %d\n", ntohs(zcp.zcp_param_two));
-#endif
                 if (ntohs(zcp.zcp_param_one))
                     printf("ADD to/from ");
                 else
@@ -187,10 +182,6 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 printf("group ID %d\n", COMP2((int32_t) zcp.zcp_param_two));
                 break;
             case 7 :
-#ifdef DEBUG
-                printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
-                printf("DEBUG: PARAM 2 IS: %d\n", ntohl(zcp.zcp_param_two));
-#endif
                 printf("Re-send %d\n", ntohl(zcp.zcp_param_two));
                 break;
         }
