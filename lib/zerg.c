@@ -5,6 +5,24 @@
 #include "zerg.h"
 #include "pcap.h"
 
+static const ZergData_t breeds[] = {
+    {0, "Overmind"}, {1, "Larva"},
+    {2, "Cerebrate"}, {3, "Overlord"},
+    {4, "Queen"}, {5, "Drone"},
+    {6, "Zergling"}, {7, "Lurker"},
+    {8, "Broodling"}, {9, "Hydralisk"},
+    {10, "Guardian"}, {11, "Scourge"},
+    {12, "Ultralisk"}, {13, "Mutalisk"},
+    {14, "Defiler"}, {15, "Devourer"},
+};
+
+static const ZergData_t cmds[] = {
+    {0, "GET_STATUS"}, {1, "GOTO"},
+    {2, "GET_GPS"}, {3, "NONE"},
+    {4, "RETURN"}, {5, "SET_GROUP"},
+    {6, "STOP"}, {7, "REPEAT"},
+};
+
 static double ieee_convert64(uint64_t num)
 {
     /* All credit to droberts */
@@ -86,16 +104,6 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     unsigned int max_hp = 0;
     char *name;
     ZergStatPayload_t zsp;
-    const ZergData_t breeds[] = {
-        {0, "Overmind"}, {1, "Larva"},
-        {2, "Cerebrate"}, {3, "Overlord"},
-        {4, "Queen"}, {5, "Drone"},
-        {6, "Zergling"}, {7, "Lurker"},
-        {8, "Broodling"}, {9, "Hydralisk"},
-        {10, "Guardian"}, {11, "Scourge"},
-        {12, "Ultralisk"}, {13, "Mutalisk"},
-        {14, "Defiler"}, {15, "Devourer"},
-    };
 
     len = NTOH3(zh->zh_len);
     len -= ZERG_SIZE;
@@ -134,12 +142,6 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
 {
     int len = 0;
     ZergCmdPayload_t zcp;
-    const ZergData_t cmds[] = {
-        {0, "GET_STATUS"}, {1, "GOTO"},
-        {2, "GET_GPS"}, {3, "NONE"},
-        {4, "RETURN"}, {5, "SET_GROUP"},
-        {6, "STOP"}, {7, "REPEAT"},
-    };
 
     len = NTOH3(zh->zh_len);
     len -= ZERG_SIZE;
