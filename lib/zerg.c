@@ -5,7 +5,7 @@
 #include "zerg.h"
 #include "pcap.h"
 
-double ieee_convert64(uint64_t num)
+static double ieee_convert64(uint64_t num)
 {
     /* All credit to droberts */
     uint8_t sign;
@@ -21,7 +21,7 @@ double ieee_convert64(uint64_t num)
     return result;
 }
 
-double ieee_convert32(uint32_t num)
+static double ieee_convert32(uint32_t num)
 {
     /* All credit to droberts */
     uint8_t sign, exponent;
@@ -38,7 +38,7 @@ double ieee_convert32(uint32_t num)
     return result;
 }
 
-uint64_t ntoh64(uint64_t val)
+static uint64_t ntoh64(uint64_t val)
 {
     /* https://stackoverflow.com/a/2637138/5155574 */
     val = ((val << 8) & 0xFF00FF00FF00FF00ULL ) | ((val >> 8) & 0x00FF00FF00FF00FFULL );
@@ -197,6 +197,9 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
 void z_gps_parse(FILE *fp, ZergHeader_t *zh)
 {
     int len = 0;
+    double longitude, latitude;
+    int degrees, minutes;
+    float seconds;
     ZergGpsPayload_t zgp;
 
     len = NTOH3(zh->zh_len);
@@ -207,17 +210,18 @@ void z_gps_parse(FILE *fp, ZergHeader_t *zh)
 #endif
 
     fread(&zgp, len, 1, fp);
-    printf("Longitude : %6.4f deg\n", ieee_convert64(ntoh64(zgp.zgp_long)));
-    int degrees, minutes;
-    float seconds;
-    degrees = (int) ieee_convert64(ntoh64(zgp.zgp_long));
-    minutes = (int) ((ieee_convert64(ntoh64(zgp.zgp_long)) - degrees) * 60);
-    seconds = (((ieee_convert64(ntoh64(zgp.zgp_long)))) - degrees - (float) minutes / 60) * 3600;
+    longitude = ieee_convert64(ntoh64(zgp.zgp_long));
+    latitude = ieee_convert64(ntoh64(zgp.zgp_lat));
+
+    printf("Longitude : %6.4f deg\n", longitude);
+    degrees = (int) longitude;
+    minutes = (int) ((longitude - degrees) * 60);
+    seconds = (((longitude)) - degrees - (float) minutes / 60) * 3600;
     printf("%d° %d' %6.4f\"\n", degrees, minutes, seconds);
-    printf("Latitude : %6.4f deg\n", ieee_convert64(ntoh64(zgp.zgp_lat)));
-    degrees = (int) ieee_convert64(ntoh64(zgp.zgp_lat));
-    minutes = (int) ((ieee_convert64(ntoh64(zgp.zgp_lat)) - degrees) * 60);
-    seconds = (((ieee_convert64(ntoh64(zgp.zgp_lat)))) - degrees - (float) minutes / 60) * 3600;
+    printf("Latitude : %6.4f deg\n", latitude);
+    degrees = (int) latitude;
+    minutes = (int) ((latitude - degrees) * 60);
+    seconds = (((latitude)) - degrees - (float) minutes / 60) * 3600;
     printf("%d° %d' %6.4f\"\n", degrees, minutes, seconds);
     if (zgp.zgp_alt)
         printf("Altitude : %6.4f m\n", ieee_convert32(ntohl(zgp.zgp_alt)));
