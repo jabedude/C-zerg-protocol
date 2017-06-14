@@ -6,6 +6,7 @@
 #include "zerg.h"
 
 /* STATIC TEMPLATES */
+static const PcapHeader_t st_pcap = {0xa1b2c3d4, 2, 4, 0, 0, MAX_PACKET_CAPTURE, 1};
 static const PcapPackHeader_t st_pack = {0x582b59dc, 0x000701d2, 0x00000000, 0x00000000};
 static const EthHeader_t st_eth = {{0xea, 0x7e, 0xa7, 0xfa, 0x55, 0xc5}, {0xea, 0x7e, 0xa7, 0x8e, 0x16, 0x48}, 0x0008};
 static const IpHeader_t st_ip = {0x45, 0x00, 0x0000, 0x0000, 0x00, 0x00, 0x11, 0x0000, {0x720f000a}, {0x3015000a}};
@@ -13,17 +14,7 @@ static const UdpHeader_t st_udp = {0x4281, 0xa70e, 0x0000, 0x0000};
 
 void write_pcap(FILE *fp)
 {
-    PcapHeader_t pcap;
-    /* TODO: FIX THIS */
-    pcap.magic_num = 0xa1b2c3d4;
-    pcap.version_major = 2;
-    pcap.version_minor = 4;
-    pcap.thiszone = 0;
-    pcap.sigfigs = 0;
-    pcap.snaplen = MAX_PACKET_CAPTURE;
-    pcap.network = 1;
-
-    fwrite(&pcap, sizeof(pcap), 1, fp);
+    fwrite(&st_pcap, sizeof(st_pcap), 1, fp);
     return;
 }
 
