@@ -34,22 +34,22 @@ typedef struct pcap_pack_header {
 typedef struct eth_header {
     uint8_t eth_dhost[6];
     uint8_t eth_shost[6];
-    u_short eth_type;
+    uint16_t eth_type;
 } EthHeader_t;
 
 typedef struct ip_header {
-    u_char  ip_vhl;
-    u_char  ip_tos;
-    u_short ip_len;
-    u_short ip_id;
-    u_short ip_off;
+    uint8_t  ip_vhl;
+    uint8_t  ip_tos;
+    uint16_t ip_len;
+    uint16_t ip_id;
+    uint16_t ip_off;
 #define IP_RF 0x8000
 #define IP_DF 0x4000
 #define IP_MF 0x2000
 #define IP_OFFMASK 0x1fff
-    u_char  ip_ttl;
-    u_char  ip_p;
-    u_short ip_sum;
+    uint8_t  ip_ttl;
+    uint8_t  ip_p;
+    uint16_t ip_sum;
     struct  in_addr ip_src,ip_dst;
 } IpHeader_t;
 
