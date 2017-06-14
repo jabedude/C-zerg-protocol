@@ -16,6 +16,14 @@ $ make clean
 $ make debug
 ```
 
+# Layout
+.
+├── bin/        Final binaries
+├── docs/       Man pages
+├── lib/        Libraries
+├── obj/        Object files
+├── pcaps/      Sample PCAPs
+
 # Usage
 
 ## Decoder:
