@@ -256,7 +256,6 @@ void read_input(FILE *fp, FILE *pfp)
             zgp.zgp_acc = htonl(acc.b);
             write_gps(pfp, &zh, &zgp);
             printf("DEBUG: fp is at %ld\n", ftell(fp));
-            //return;
         }
         else if (sscanf(line, "%[^\n]", str)) {
             printf("DEBUG: THIS IS A COMMAND PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
@@ -322,9 +321,7 @@ void read_input(FILE *fp, FILE *pfp)
                 printf("DEBUG: PARAM TWO IS %f\n", param_two.f);
                 write_cmd(pfp, &zh, &zcp);
                 printf("DEBUG: fp is at %ld\n", ftell(fp));
-                //return; /* TODO: WHY ARE THREE RETURNS NEEDED?? */
             }
-            //return;
         }
     }
     return;
