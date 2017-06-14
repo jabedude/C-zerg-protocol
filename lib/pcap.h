@@ -54,10 +54,10 @@ typedef struct ip_header {
 } IpHeader_t;
 
 typedef struct udp_header {
-    u_short uh_sport;
-    u_short uh_dport;
-    u_short uh_ulen;
-    u_short uh_sum;
+    uint16_t uh_sport;
+    uint16_t uh_dport;
+    uint16_t uh_ulen;
+    uint16_t uh_sum;
 } UdpHeader_t;
 
 typedef struct zerg_header {
