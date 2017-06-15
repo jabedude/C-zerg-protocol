@@ -40,6 +40,7 @@ static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr
     uint16_t *ip_src=(void *)&src, *ip_dst=(void *)&dst;
     uint32_t sum;
     size_t length=len;
+    size_t i;
     /* TODO: clean this up */
 
     // Calculate the sum                                            //
@@ -52,7 +53,8 @@ static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr
     sum += 0x0011;
     sum += length;
 
-    for (size_t i = 0; i < len/2; i++) {
+
+    for (i = 0; i < len/2; i++) {
         sum += bswap_16(buf[i]);
         if (sum & 0x80000000)
             sum = (sum & 0xFFFF) + (sum >> 16);
@@ -65,8 +67,8 @@ static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr
 //            len -= 2;
 //    }
 
-    if ( len & 1 )
-            sum += *((uint8_t *)buf);
+    if (len & 1)
+            sum += bswap_16((uint16_t) buf[i]);
 
 
     // Add the carries                                              //
@@ -99,7 +101,7 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + sizeof(ZergHeader_t) + msg_len);
-    datagram = (uint8_t *) malloc(ntohs(udp.uh_ulen));
+    datagram = (uint8_t *) malloc(ntohs(udp.uh_ulen) + 1);
     memcpy(datagram, &udp, sizeof(UdpHeader_t));
     memcpy(&datagram[sizeof(UdpHeader_t)], zh, sizeof(ZergHeader_t));
     memcpy(&datagram[sizeof(UdpHeader_t) + sizeof(ZergHeader_t)], msg, msg_len);
@@ -122,6 +124,7 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
     UdpHeader_t udp = st_udp;
+    uint8_t *datagram;
     const size_t name_len = strlen(name);
 
     pack.recorded_len = sizeof(st_eth) +
@@ -136,6 +139,13 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
     ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + name_len);
+    datagram = (uint8_t *) malloc(ntohs(udp.uh_ulen) + 1);
+    memcpy(datagram, &udp, sizeof(UdpHeader_t));
+    memcpy(&datagram[sizeof(UdpHeader_t)], zh, sizeof(ZergHeader_t));
+    memcpy(&datagram[sizeof(UdpHeader_t) + sizeof(ZergHeader_t)], zsp, sizeof(ZergStatPayload_t));
+    memcpy(&datagram[sizeof(UdpHeader_t) + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t)], name, name_len);
+    udp.uh_sum = udp_checksum(datagram, ntohs(udp.uh_ulen), htonl(ip.ip_src), htonl(ip.ip_dst));
+    free(datagram);
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     fwrite(&pack, sizeof(pack), 1, pfp);
