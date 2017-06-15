@@ -29,22 +29,20 @@ int main(int argc, char **argv)
     rewind(fp);
 
     (void) fread(&pcap, sizeof(pcap), 1, fp);
-    /* TODO: fix the logic below */
-    if (pcap.magic_num == 0xa1b2c3d4) {
-#ifdef DEBUG
-        printf("DEBUG: This is a pcap.\n");
-        printf("DEBUG: PCAP MAGIC NUM IS %x\n", pcap.magic_num);
-        printf("DEBUG: PCAP VERSION NUMBER IS %u.%u\n", pcap.version_major, pcap.version_minor);
-        printf("DEBUG: FILE LENGTH IS %ld\n", file_len);
-        EthHeader_t eth;
-        IpHeader_t ip;
-        UdpHeader_t udp;
-#endif
-    } else {
+    if (pcap.magic_num != 0xa1b2c3d4) {
         fprintf(stderr, "Please supply a valid pcap file.\n");
         fclose(fp);
         return 1;
     }
+#ifdef DEBUG
+    printf("DEBUG: This is a pcap.\n");
+    printf("DEBUG: PCAP MAGIC NUM IS %x\n", pcap.magic_num);
+    printf("DEBUG: PCAP VERSION NUMBER IS %u.%u\n", pcap.version_major, pcap.version_minor);
+    printf("DEBUG: FILE LENGTH IS %ld\n", file_len);
+    EthHeader_t eth;
+    IpHeader_t ip;
+    UdpHeader_t udp;
+#endif
 
     packet_num = 1;
     while (ftell(fp) < file_len) {
