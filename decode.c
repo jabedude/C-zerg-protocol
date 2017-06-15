@@ -59,7 +59,8 @@ int main(int argc, char **argv)
 #endif
 
         //(void) fread(&eth, sizeof(eth), 1, fp);
-        fseek(fp, sizeof(eth), SEEK_CUR);
+        //fseek(fp, sizeof(eth), SEEK_CUR);
+        fseek(fp, 42, SEEK_CUR);
 #ifdef DEBUG
         //(void) fread(&eth, sizeof(eth), 1, fp);
         printf("DEBUG: ETH DEST HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
@@ -80,7 +81,7 @@ int main(int argc, char **argv)
 #endif
 
         //(void) fread(&ip, sizeof(ip), 1, fp);
-        fseek(fp, sizeof(ip), SEEK_CUR);
+        //fseek(fp, sizeof(ip), SEEK_CUR);
 #ifdef DEBUG
         //(void) fread(&ip, sizeof(ip), 1, fp);
         printf("DEBUG: IP VERSION/HL is 0x%x\n", ip.ip_vhl);
@@ -90,7 +91,7 @@ int main(int argc, char **argv)
 #endif
 
         //(void) fread(&udp, sizeof(udp), 1, fp);
-        fseek(fp, sizeof(udp), SEEK_CUR);
+        //fseek(fp, sizeof(udp), SEEK_CUR);
 #ifdef DEBUG
         //(void) fread(&udp, sizeof(udp), 1, fp);
         printf("DEBUG: UDP DEST PORT IS is 0x%x\n", ntohs(udp.uh_dport));
