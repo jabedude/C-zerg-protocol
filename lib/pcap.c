@@ -1,6 +1,7 @@
 #include <byteswap.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 
 #include "pcap.h"
 #include "zerg.h"
@@ -9,7 +10,7 @@
 static const PcapHeader_t st_pcap = {0xa1b2c3d4, 2, 4, 0, 0, MAX_PACKET_CAPTURE, 1};
 static const PcapPackHeader_t st_pack = {0x582b59dc, 0x000701d2, 0x00000000, 0x00000000};
 static const EthHeader_t st_eth = {{0xea, 0x7e, 0xa7, 0xfa, 0x55, 0xc5}, {0xea, 0x7e, 0xa7, 0x8e, 0x16, 0x48}, 0x0008};
-static const IpHeader_t st_ip = {0x45, 0x00, 0x0000, 0x0000, 0x00, 0x00, 0x11, 0x0000, {0x720f000a}, {0x3015000a}};
+static const IpHeader_t st_ip = {0x45, 0x00, 0x0000, 0x0000, 0x00, 0x00, 0x11, 0x0000, 0x720f000a, 0x3015000a};
 static const UdpHeader_t st_udp = {0x4281, 0xa70e, 0x0000, 0x0000};
 
 static uint16_t ip_checksum(const void *ip, size_t len)
@@ -33,6 +34,50 @@ static uint16_t ip_checksum(const void *ip, size_t len)
     return(~sum);
 }
 
+static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr_t dst)
+{
+    const uint16_t *buf = udp;
+    uint16_t *ip_src=(void *)&src, *ip_dst=(void *)&dst;
+    uint32_t sum;
+    size_t length=len;
+    /* TODO: clean this up */
+
+    // Calculate the sum                                            //
+    sum = 0;
+
+    sum += *(ip_src++);
+    sum += *ip_src;
+    sum += *(ip_dst++);
+    sum += *ip_dst;
+    sum += 0x0011;
+    sum += length;
+
+    for (size_t i = 0; i < len/2; i++) {
+        sum += bswap_16(buf[i]);
+        if (sum & 0x80000000)
+            sum = (sum & 0xFFFF) + (sum >> 16);
+    }
+//    while (len > 1) {
+//            sum += *buf++;
+//            printf("DEBUG: BUF IS %x\n", *buf);
+//            if (sum & 0x80000000)
+//                    sum = (sum & 0xFFFF) + (sum >> 16);
+//            len -= 2;
+//    }
+
+    if ( len & 1 )
+            sum += *((uint8_t *)buf);
+
+
+    // Add the carries                                              //
+    while (sum >> 16)
+            sum = (sum & 0xFFFF) + (sum >> 16);
+
+
+    // Return the one's complement of sum                           //
+    return htons((uint16_t) (sum ^ 0xFFFF));
+}
+
 void write_pcap(FILE *fp)
 {
     fwrite(&st_pcap, sizeof(st_pcap), 1, fp);
@@ -45,6 +90,7 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     IpHeader_t ip = st_ip;
     UdpHeader_t udp = st_udp;
     const size_t msg_len = strlen(msg);
+    uint8_t *datagram;
 
     pack.recorded_len = sizeof(st_eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + msg_len;
     pack.orig_len = pack.recorded_len;
@@ -53,6 +99,12 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + sizeof(ZergHeader_t) + msg_len);
+    datagram = (uint8_t *) malloc(ntohs(udp.uh_ulen));
+    memcpy(datagram, &udp, sizeof(UdpHeader_t));
+    memcpy(&datagram[sizeof(UdpHeader_t)], zh, sizeof(ZergHeader_t));
+    memcpy(&datagram[sizeof(UdpHeader_t) + sizeof(ZergHeader_t)], msg, msg_len);
+    udp.uh_sum = udp_checksum(datagram, ntohs(udp.uh_ulen), htonl(ip.ip_src), htonl(ip.ip_dst));
+    free(datagram);
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     fwrite(&pack, sizeof(pack), 1, pfp);

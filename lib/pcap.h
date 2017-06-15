@@ -50,7 +50,8 @@ typedef struct ip_header {
     uint8_t  ip_ttl;
     uint8_t  ip_p;
     uint16_t ip_sum;
-    struct  in_addr ip_src,ip_dst;
+    //struct  in_addr ip_src,ip_dst;
+    in_addr_t ip_src,ip_dst;
 } IpHeader_t;
 
 typedef struct udp_header {

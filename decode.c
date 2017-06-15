@@ -82,8 +82,9 @@ int main(int argc, char **argv)
         (void) fread(&ip, sizeof(ip), 1, fp);
         printf("DEBUG: IP VERSION/HL is 0x%x\n", ip.ip_vhl);
         printf("DEBUG: IP TOTAL LEN is %x\n", ip.ip_len);
-        printf("DEBUG: SOURCE IP is %s\n", inet_ntoa(ip.ip_src));
-        printf("DEBUG: DEST IP is %s\n", inet_ntoa(ip.ip_dst));
+        char buf[INET_ADDRSTRLEN];
+        printf("DEBUG: SOURCE IP is %s\n", inet_ntop(AF_INET, &ip.ip_src, buf, INET_ADDRSTRLEN));
+        printf("DEBUG: DEST IP is %s\n", inet_ntop(AF_INET, &ip.ip_dst, buf, INET_ADDRSTRLEN));
 #endif
 
 #ifdef DEBUG
