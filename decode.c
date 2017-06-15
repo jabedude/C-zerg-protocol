@@ -58,8 +58,10 @@ int main(int argc, char **argv)
         printf("DEBUG: PACKET END SHOULD BE %lu\n", packet_end);
 #endif
 
-        (void) fread(&eth, sizeof(eth), 1, fp);
+        //(void) fread(&eth, sizeof(eth), 1, fp);
+        fseek(fp, sizeof(eth), SEEK_CUR);
 #ifdef DEBUG
+        //(void) fread(&eth, sizeof(eth), 1, fp);
         printf("DEBUG: ETH DEST HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
                                                 eth.eth_dhost[0],
                                                 eth.eth_dhost[1],
@@ -77,16 +79,20 @@ int main(int argc, char **argv)
         printf("DEBUG: ETHERTYPE IS: 0x%.2x\n", eth.eth_type);
 #endif
 
-        (void) fread(&ip, sizeof(ip), 1, fp);
+        //(void) fread(&ip, sizeof(ip), 1, fp);
+        fseek(fp, sizeof(ip), SEEK_CUR);
 #ifdef DEBUG
+        //(void) fread(&ip, sizeof(ip), 1, fp);
         printf("DEBUG: IP VERSION/HL is 0x%x\n", ip.ip_vhl);
         printf("DEBUG: IP TOTAL LEN is %x\n", ip.ip_len);
         printf("DEBUG: SOURCE IP is %s\n", inet_ntoa(ip.ip_src));
         printf("DEBUG: DEST IP is %s\n", inet_ntoa(ip.ip_dst));
 #endif
 
-        (void) fread(&udp, sizeof(udp), 1, fp);
+        //(void) fread(&udp, sizeof(udp), 1, fp);
+        fseek(fp, sizeof(udp), SEEK_CUR);
 #ifdef DEBUG
+        //(void) fread(&udp, sizeof(udp), 1, fp);
         printf("DEBUG: UDP DEST PORT IS is 0x%x\n", ntohs(udp.uh_dport));
         printf("DEBUG: UDP LENGTH IS is %u\n", ntohs(udp.uh_ulen));
 #endif
