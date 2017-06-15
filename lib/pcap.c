@@ -176,17 +176,19 @@ void read_input(FILE *fp, FILE *pfp)
 
     while (fgets(line, MAX_LINE_SIZE, fp)) {
         if (sscanf(line, "*** Packet %d ***", &pack_num))
-            printf("DEBUG: PACKET NUMBER IS %d\n", pack_num);
+            fprintf(stderr, "DEBUG: PACKET NUMBER IS %d\n", pack_num);
         else if (sscanf(line, "Version : %hhu", &zerg_version))
-            printf("DEBUG: VERSION IS %u\n", zerg_version);
+            fprintf(stderr, "DEBUG: VERSION IS %u\n", zerg_version);
         else if (sscanf(line, "Sequence : %u", &zerg_sequence))
-            printf("DEBUG: SEQUENCE IS %u\n", zerg_sequence);
+            fprintf(stderr, "DEBUG: SEQUENCE IS %u\n", zerg_sequence);
         else if (sscanf(line, "From : %hu", &zerg_src))
-            printf("DEBUG: SOURCE IS %u\n", zerg_src);
+            fprintf(stderr, "DEBUG: SOURCE IS %u\n", zerg_src);
         else if (sscanf(line, "To : %hu", &zerg_dst))
-            printf("DEBUG: DESTINATION IS %u\n", zerg_dst);
+            fprintf(stderr, "DEBUG: DESTINATION IS %u\n", zerg_dst);
         else if (sscanf(line, "Message : %[^\n]", str)) {
+#ifdef DEBUG
             printf("DEBUG: MESSAGE IS %s\n", str);
+#endif
             uint32_t len = strlen(str);
             len += ZERG_SIZE;
             zh.zh_len[0] = (len >> 16) & 0xFF;
@@ -197,7 +199,9 @@ void read_input(FILE *fp, FILE *pfp)
             zh.zh_dest = htons(zerg_dst);
             zh.zh_seqid = htonl(zerg_sequence);
             write_msg(pfp, &zh, str);
+#ifdef DEBUG
             printf("DEBUG: fp is at %ld\n", ftell(fp));
+#endif
         }
         else if (sscanf(line, "HP : %u", &zerg_hp)) {
             for (int i = 0; i < 5; i++) {
@@ -208,7 +212,9 @@ void read_input(FILE *fp, FILE *pfp)
                 (void) sscanf(line, "Speed(m/s) : %f", &stat_speed.f);
                 (void) sscanf(line, "Name : %[^\n]", name);
             }
+#ifdef DEBUG
             printf("DEBUG: THIS IS A STATUS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\nARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_version, zerg_sequence, zerg_src, zerg_dst, zerg_hp, zerg_max_hp, str, zerg_armor, stat_speed.f, name);
+#endif
 
             uint32_t len = strlen(name) + 12;
             len += ZERG_SIZE;
@@ -249,7 +255,9 @@ void read_input(FILE *fp, FILE *pfp)
             zsp.zsp_speed = htonl(stat_speed.b);
             write_stat(pfp, &zh, &zsp, name);
 
+#ifdef DEBUG
             printf("DEBUG: fp is at %ld\n", ftell(fp));
+#endif
         }
         else if (sscanf(line, "Longitude : %le deg", &dto64.d)) {
             for (int i = 0; i < 8; i++) {
@@ -260,8 +268,10 @@ void read_input(FILE *fp, FILE *pfp)
                 (void) sscanf(line, "Speed : %e m/s", &speed.f);
                 (void) sscanf(line, "Accuracy : %e m", &acc.f);
             }
+#ifdef DEBUG
             printf("DEBUG: THIS IS A GPS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nLONG IS %6.4f\nLAT IS %6.4f\nALT IS %6.4f\nBEARING IS %6.4f\nSPEED IS %6.4f\nACCURACY IS %6.4f\n",
                     zerg_version, zerg_sequence, zerg_src, zerg_dst, dto64.d, latto64.d, altitude.f, bearing.f, speed.f, acc.f);
+#endif
             ZergGpsPayload_t zgp = (const ZergGpsPayload_t) {0};
 
             uint32_t len = 32 + ZERG_SIZE;
@@ -280,11 +290,15 @@ void read_input(FILE *fp, FILE *pfp)
             zgp.zgp_speed = htonl(speed.b);
             zgp.zgp_acc = htonl(acc.b);
             write_gps(pfp, &zh, &zgp);
+#ifdef DEBUG
             printf("DEBUG: fp is at %ld\n", ftell(fp));
+#endif
         }
         else if (sscanf(line, "%[^\n]", str)) {
+#ifdef DEBUG
             printf("DEBUG: THIS IS A COMMAND PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
                     zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
+#endif
             ZergCmdPayload_t zcp = (const ZergCmdPayload_t) {0};
             const ZergData_t cmds[] = {
                 {0, "GET_STATUS"}, {1, "GOTO"},
@@ -312,7 +326,9 @@ void read_input(FILE *fp, FILE *pfp)
             if (i % 2 == 0) {
                 /* No parameters passed */
                 write_cmd(pfp, &zh, &zcp);
+#ifdef DEBUG
                 printf("DEBUG: fp is at %ld\n", ftell(fp));
+#endif
             } else {
                 /* Params passed */
                 uint32_t len = 8;
@@ -342,10 +358,14 @@ void read_input(FILE *fp, FILE *pfp)
                     zcp.zcp_param_two = htonl(param_two.b);
                 }
 
+#ifdef DEBUG
                 printf("DEBUG: PARAM ONE IS %d\n", param_one);
                 printf("DEBUG: PARAM TWO IS %f\n", param_two.f);
+#endif
                 write_cmd(pfp, &zh, &zcp);
+#ifdef DEBUG
                 printf("DEBUG: fp is at %ld\n", ftell(fp));
+#endif
             }
         }
     }

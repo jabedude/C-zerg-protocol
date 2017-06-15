@@ -24,7 +24,9 @@ int main(int argc, char **argv)
     }
 
     read_input(fp, pfp);
+#ifdef DEBUG
     printf("DEBUG: fp is now at %ld\n", ftell(fp));
+#endif
 
     fclose(fp);
     fclose(pfp);
