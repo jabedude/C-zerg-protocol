@@ -12,8 +12,6 @@ static const EthHeader_t st_eth = {{0xea, 0x7e, 0xa7, 0xfa, 0x55, 0xc5}, {0xea, 
 static const IpHeader_t st_ip = {0x45, 0x00, 0x0000, 0x0000, 0x00, 0x00, 0x11, 0x0000, {0x720f000a}, {0x3015000a}};
 static const UdpHeader_t st_udp = {0x4281, 0xa70e, 0x0000, 0x0000};
 
-static long p_num = 1;
-
 static uint16_t ip_checksum(const void *ip, size_t len)
 {
     /* http://www.netfor2.com/ipsum.htm */
@@ -57,9 +55,6 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     udp.uh_ulen = htons(sizeof(udp) + sizeof(ZergHeader_t) + msg_len);
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
-    printf("\rEncoding packet number %ld", p_num++);
-    fflush(stdout);
-
     fwrite(&pack, sizeof(pack), 1, pfp);
     fwrite(&st_eth, sizeof(st_eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
@@ -91,9 +86,6 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergStatPayload_t) + name_len);
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
-    printf("\rEncoding packet number %ld", p_num++);
-    fflush(stdout);
-
     fwrite(&pack, sizeof(pack), 1, pfp);
     fwrite(&st_eth, sizeof(st_eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
@@ -119,9 +111,6 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
-    printf("\rEncoding packet number %ld", p_num++);
-    fflush(stdout);
-
     fwrite(&pack, sizeof(pack), 1, pfp);
     fwrite(&st_eth, sizeof(st_eth), 1, pfp);
     fwrite(&ip, sizeof(ip), 1, pfp);
@@ -145,9 +134,6 @@ void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
 
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
-
-    printf("\rEncoding packet number %ld", p_num++);
-    fflush(stdout);
 
     fwrite(&pack, sizeof(pack), 1, pfp);
     fwrite(&st_eth, sizeof(st_eth), 1, pfp);
@@ -192,30 +178,15 @@ void read_input(FILE *fp, FILE *pfp)
 
     while (fgets(line, MAX_LINE_SIZE, fp)) {
         if (sscanf(line, "*** Packet %d ***", &pack_num))
-#ifdef DEBUG
             fprintf(stderr, "DEBUG: PACKET NUMBER IS %d\n", pack_num);
-#endif
-            ;
         else if (sscanf(line, "Version : %hhu", &zerg_version))
-#ifdef DEBUG
             fprintf(stderr, "DEBUG: VERSION IS %u\n", zerg_version);
-#endif
-            ;
         else if (sscanf(line, "Sequence : %u", &zerg_sequence))
-#ifdef DEBUG
             fprintf(stderr, "DEBUG: SEQUENCE IS %u\n", zerg_sequence);
-#endif
-            ;
         else if (sscanf(line, "From : %hu", &zerg_src))
-#ifdef DEBUG
             fprintf(stderr, "DEBUG: SOURCE IS %u\n", zerg_src);
-#endif
-            ;
         else if (sscanf(line, "To : %hu", &zerg_dst))
-#ifdef DEBUG
             fprintf(stderr, "DEBUG: DESTINATION IS %u\n", zerg_dst);
-#endif
-            ;
         else if (sscanf(line, "Message : %[^\n]", str)) {
 #ifdef DEBUG
             printf("DEBUG: MESSAGE IS %s\n", str);
