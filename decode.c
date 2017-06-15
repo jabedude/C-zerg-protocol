@@ -11,9 +11,6 @@ int main(int argc, char **argv)
     int packet_num;
     PcapHeader_t pcap;
     PcapPackHeader_t pcap_pack;
-    EthHeader_t eth;
-    IpHeader_t ip;
-    UdpHeader_t udp;
     ZergHeader_t zh;
 
     /* Usage/ args check */
@@ -32,12 +29,16 @@ int main(int argc, char **argv)
     rewind(fp);
 
     (void) fread(&pcap, sizeof(pcap), 1, fp);
+    /* TODO: fix the logic below */
     if (pcap.magic_num == 0xa1b2c3d4) {
 #ifdef DEBUG
         printf("DEBUG: This is a pcap.\n");
         printf("DEBUG: PCAP MAGIC NUM IS %x\n", pcap.magic_num);
         printf("DEBUG: PCAP VERSION NUMBER IS %u.%u\n", pcap.version_major, pcap.version_minor);
         printf("DEBUG: FILE LENGTH IS %ld\n", file_len);
+        EthHeader_t eth;
+        IpHeader_t ip;
+        UdpHeader_t udp;
 #endif
     } else {
         fprintf(stderr, "Please supply a valid pcap file.\n");
@@ -57,12 +58,11 @@ int main(int argc, char **argv)
         printf("DEBUG: PACKET DATA LENGTH IS %u\n", pcap_pack.recorded_len);
         printf("DEBUG: PACKET END SHOULD BE %lu\n", packet_end);
 #endif
-
-        //(void) fread(&eth, sizeof(eth), 1, fp);
-        //fseek(fp, sizeof(eth), SEEK_CUR);
+#ifndef DEBUG
         fseek(fp, 42, SEEK_CUR);
+#endif
 #ifdef DEBUG
-        //(void) fread(&eth, sizeof(eth), 1, fp);
+        (void) fread(&eth, sizeof(eth), 1, fp);
         printf("DEBUG: ETH DEST HOST IS %.2x:%.2x:%.2x:%.2x:%.2x:%.2x\n",
                                                 eth.eth_dhost[0],
                                                 eth.eth_dhost[1],
@@ -80,20 +80,16 @@ int main(int argc, char **argv)
         printf("DEBUG: ETHERTYPE IS: 0x%.2x\n", eth.eth_type);
 #endif
 
-        //(void) fread(&ip, sizeof(ip), 1, fp);
-        //fseek(fp, sizeof(ip), SEEK_CUR);
 #ifdef DEBUG
-        //(void) fread(&ip, sizeof(ip), 1, fp);
+        (void) fread(&ip, sizeof(ip), 1, fp);
         printf("DEBUG: IP VERSION/HL is 0x%x\n", ip.ip_vhl);
         printf("DEBUG: IP TOTAL LEN is %x\n", ip.ip_len);
         printf("DEBUG: SOURCE IP is %s\n", inet_ntoa(ip.ip_src));
         printf("DEBUG: DEST IP is %s\n", inet_ntoa(ip.ip_dst));
 #endif
 
-        //(void) fread(&udp, sizeof(udp), 1, fp);
-        //fseek(fp, sizeof(udp), SEEK_CUR);
 #ifdef DEBUG
-        //(void) fread(&udp, sizeof(udp), 1, fp);
+        (void) fread(&udp, sizeof(udp), 1, fp);
         printf("DEBUG: UDP DEST PORT IS is 0x%x\n", ntohs(udp.uh_dport));
         printf("DEBUG: UDP LENGTH IS is %u\n", ntohs(udp.uh_ulen));
 #endif
@@ -122,19 +118,6 @@ int main(int argc, char **argv)
                 fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);
                 break;
         }
-        /* TODO: remove if neccesary
-        if ((zh.zh_vt & 0xFF) == 0x10) {
-            z_msg_parse(fp, &zh);
-        } else if ((zh.zh_vt & 0xFF) == 0x11) {
-            z_status_parse(fp, &zh);
-        } else if ((zh.zh_vt & 0xFF) == 0x12) {
-            z_cmd_parse(fp, &zh);
-        } else if ((zh.zh_vt & 0xFF) == 0x13) {
-            z_gps_parse(fp, &zh);
-        } else {
-            fprintf(stderr, "%s: error reading psychic capture.\n", argv[0]);
-        }
-        */
 #ifdef DEBUG
         printf("DEBUG: FP IS AT %lu\n", ftell(fp));
 #endif
