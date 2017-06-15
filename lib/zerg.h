@@ -46,10 +46,6 @@ This macro is a network to host endianness switcher for 3 byte values.
 #define COMP2(x) (~x) + 1
 
 /* Function prototypes */
-/* TODO: remove these prototypes */
-//static double ieee_convert64(uint64_t num);
-//static double ieee_convert32(uint32_t num);
-//static uint64_t ntoh64(uint64_t val);
 void z_msg_parse(FILE *fp, ZergHeader_t *zh);
 void z_status_parse(FILE *fp, ZergHeader_t *zh);
 void z_cmd_parse(FILE *fp, ZergHeader_t *zh);
