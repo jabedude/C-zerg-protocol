@@ -14,7 +14,7 @@ static const IpHeader_t st_ip = {0x45, 0x00, 0x0000, 0x0000, 0x00, 0x00, 0x11, 0
 static const UdpHeader_t st_udp = {0x4281, 0xa70e, 0x0000, 0x0000};
 
 static uint16_t ip_checksum(const void *ip, size_t len)
-{
+{   /* Calculates + returns IPv4 header checksum. */
     /* http://www.netfor2.com/ipsum.htm */
     unsigned long sum = 0;
     const uint16_t *ip1;
@@ -35,7 +35,7 @@ static uint16_t ip_checksum(const void *ip, size_t len)
 }
 
 static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr_t dst)
-{
+{   /* Calculates and returns UDP checksum. */
     const uint16_t *buf = udp;
     uint16_t *ip_src=(void *)&src, *ip_dst=(void *)&dst;
     uint32_t sum;
@@ -75,7 +75,7 @@ void write_pcap(FILE *fp)
 }
 
 void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
-{
+{   /* Writes a message payload zerg packet to pfp */
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
     UdpHeader_t udp = st_udp;
@@ -108,7 +108,7 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
 }
 
 void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
-{
+{   /* Writes a status payload zerg packet to pfp */
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
     UdpHeader_t udp = st_udp;
@@ -147,7 +147,7 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
 }
 
 void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
-{
+{   /* Writes a command payload zerg packet to pfp */
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
     UdpHeader_t udp = st_udp;
@@ -178,7 +178,7 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
 }
 
 void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
-{
+{   /* Writes a gps data payload packet to pfp */
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
     UdpHeader_t udp = st_udp;
@@ -209,7 +209,7 @@ void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
 }
 
 void read_input(FILE *fp, FILE *pfp)
-{
+{   /* Reads input file and encodes psychic capture */
     int pack_num;
     uint8_t zerg_version;
     uint16_t zerg_src, zerg_dst;
