@@ -51,8 +51,8 @@ static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr
     sum += 0x0011;
     sum += len;
 
-
     for (i = 0; i < len/2; i++) {
+        /* Hannah made me realize I needed to bswap these 2-byte values */
         sum += bswap_16(buf[i]);
         if (sum & 0x80000000)
             sum = (sum & 0xFFFF) + (sum >> 16);
