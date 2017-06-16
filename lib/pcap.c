@@ -36,6 +36,7 @@ static uint16_t ip_checksum(const void *ip, size_t len)
 
 static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr_t dst)
 {   /* Calculates and returns UDP checksum. */
+    /* http://www4.ncsu.edu/~mlsichit/Teaching/407/Resources/udpChecksum.html */
     const uint16_t *buf = udp;
     uint16_t *ip_src=(void *)&src, *ip_dst=(void *)&dst;
     uint32_t sum;
@@ -209,10 +210,8 @@ void read_input(FILE *fp, FILE *pfp)
     uint16_t zerg_src, zerg_dst;
     uint32_t zerg_sequence;
     ZergHeader_t zh;
-    char str[MAX_LINE_SIZE];
-    char line[MAX_LINE_SIZE];
-    uint32_t zerg_hp;
-    uint32_t zerg_max_hp;
+    char str[MAX_LINE_SIZE], line[MAX_LINE_SIZE];
+    uint32_t zerg_hp, zerg_max_hp;
     uint8_t zerg_armor;
     union Fto32 {
         uint32_t b;
@@ -227,13 +226,12 @@ void read_input(FILE *fp, FILE *pfp)
     };
     union Dto64 dto64;
     union Dto64 latto64;
-    union Fto32 altitude;
-    union Fto32 bearing;
-    union Fto32 speed;
-    union Fto32 acc;
+    union Fto32 altitude, bearing, speed, acc;
 
+    /* Write the Psychic Capture Header */
     fwrite(&st_pcap, sizeof(st_pcap), 1, pfp);
 
+    /* Encoding loop */
     while (fgets(line, MAX_LINE_SIZE, fp)) {
         if (sscanf(line, "*** Packet %d ***", &pack_num))
             fprintf(stderr, "PACKET NUMBER IS %d\n", pack_num);
@@ -273,7 +271,10 @@ void read_input(FILE *fp, FILE *pfp)
                 (void) sscanf(line, "Name : %[^\n]", name);
             }
 #ifdef DEBUG
-            printf("DEBUG: THIS IS A STATUS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\nARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_version, zerg_sequence, zerg_src, zerg_dst, zerg_hp, zerg_max_hp, str, zerg_armor, stat_speed.f, name);
+            printf("DEBUG: THIS IS A STATUS PACKET\n");
+            printf("VER IS %d\nSEQ IS %d\nSRC IS %d\n", zerg_version, zerg_sequence, zerg_src);
+            printf("DST IS %d\nHP IS %d\nMAX-HP IS %d\nTYPE IS %s\n", zerg_dst, zerg_hp, zerg_max_hp, str);
+            printf("ARMOR IS %d\nSPEED IS %lf\nNAME IS %s\n", zerg_armor, stat_speed.f, name);
 #endif
 
             uint32_t len = strlen(name) + 12;
@@ -329,8 +330,10 @@ void read_input(FILE *fp, FILE *pfp)
                 (void) sscanf(line, "Accuracy : %e m", &acc.f);
             }
 #ifdef DEBUG
-            printf("DEBUG: THIS IS A GPS PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nLONG IS %6.4f\nLAT IS %6.4f\nALT IS %6.4f\nBEARING IS %6.4f\nSPEED IS %6.4f\nACCURACY IS %6.4f\n",
-                    zerg_version, zerg_sequence, zerg_src, zerg_dst, dto64.d, latto64.d, altitude.f, bearing.f, speed.f, acc.f);
+            printf("DEBUG: THIS IS A GPS PACKET\n");
+            printf("VER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\n", zerg_version, zerg_sequence, zerg_src, zerg_dst);
+            printf("LONG IS %6.4f\nLAT IS %6.4f\nALT IS %6.4f\n", dto64.d, latto64.d, altitude.f);
+            printf("BEARING IS %6.4f\nSPEED IS %6.4f\nACCURACY IS %6.4f\n", bearing.f, speed.f, acc.f);
 #endif
             ZergGpsPayload_t zgp = (const ZergGpsPayload_t) {0};
 
@@ -356,7 +359,8 @@ void read_input(FILE *fp, FILE *pfp)
         }
         else if (sscanf(line, "%[^\n]", str)) {
 #ifdef DEBUG
-            printf("DEBUG: THIS IS A COMMAND PACKET\nVER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
+            printf("DEBUG: THIS IS A COMMAND PACKET\n");
+            printf("VER IS %d\nSEQ IS %d\nSRC IS %d\nDST IS %d\nCOMMAND IS %s\n",
                     zerg_version, zerg_sequence, zerg_src, zerg_dst, str);
 #endif
             ZergCmdPayload_t zcp = (const ZergCmdPayload_t) {0};
