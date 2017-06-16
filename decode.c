@@ -49,7 +49,6 @@ int main(int argc, char **argv)
     /* Main decode loop */
     while (ftell(fp) < file_len) {
         (void) fread(&pcap_pack, sizeof(pcap_pack), 1, fp);
-        printf("*** Packet %d ***\n", packet_num);
         packet_end = pcap_pack.recorded_len + ftell(fp);
 #ifdef DEBUG
         printf("DEBUG: PACKET EPOCH IS %u\n", pcap_pack.epoch);
@@ -97,6 +96,7 @@ int main(int argc, char **argv)
             fprintf(stderr, "Usupported Psychic Capture version\n");
             goto cleanup;
         }
+        printf("*** Packet %d ***\n", packet_num);
         printf("Version : %x\n", zh.zh_vt >> 4);
         /* This program only supports version 1 */
         printf("Sequence : %u\n", ntohl(zh.zh_seqid));
