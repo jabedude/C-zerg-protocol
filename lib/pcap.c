@@ -39,11 +39,8 @@ static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr
     const uint16_t *buf = udp;
     uint16_t *ip_src=(void *)&src, *ip_dst=(void *)&dst;
     uint32_t sum;
-    size_t length=len;
     size_t i;
-    /* TODO: clean this up */
 
-    // Calculate the sum                                            //
     sum = 0;
 
     sum += *(ip_src++);
@@ -51,7 +48,7 @@ static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr
     sum += *(ip_dst++);
     sum += *ip_dst;
     sum += 0x0011;
-    sum += length;
+    sum += len;
 
 
     for (i = 0; i < len/2; i++) {
@@ -59,24 +56,15 @@ static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr
         if (sum & 0x80000000)
             sum = (sum & 0xFFFF) + (sum >> 16);
     }
-//    while (len > 1) {
-//            sum += *buf++;
-//            printf("DEBUG: BUF IS %x\n", *buf);
-//            if (sum & 0x80000000)
-//                    sum = (sum & 0xFFFF) + (sum >> 16);
-//            len -= 2;
-//    }
 
     if (len & 1)
             sum += bswap_16((uint16_t) buf[i]);
 
-
-    // Add the carries                                              //
+    /* Add carries to least sig byte */
     while (sum >> 16)
             sum = (sum & 0xFFFF) + (sum >> 16);
 
-
-    // Return the one's complement of sum                           //
+    /* One's complement */
     return htons((uint16_t) (sum ^ 0xFFFF));
 }
 
