@@ -163,6 +163,7 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
     UdpHeader_t udp = st_udp;
+    uint8_t *datagram;
 
     pack.recorded_len = sizeof(st_eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t);
     pack.orig_len = pack.recorded_len;
@@ -171,6 +172,12 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
     ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergCmdPayload_t));
+    datagram = (uint8_t *) malloc(ntohs(udp.uh_ulen) + 1);
+    memcpy(datagram, &udp, sizeof(UdpHeader_t));
+    memcpy(&datagram[sizeof(UdpHeader_t)], zh, sizeof(ZergHeader_t));
+    memcpy(&datagram[sizeof(UdpHeader_t) + sizeof(ZergHeader_t)], zcp, sizeof(ZergCmdPayload_t));
+    udp.uh_sum = udp_checksum(datagram, ntohs(udp.uh_ulen), htonl(ip.ip_src), htonl(ip.ip_dst));
+    free(datagram);
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     fwrite(&pack, sizeof(pack), 1, pfp);
@@ -187,6 +194,7 @@ void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
     UdpHeader_t udp = st_udp;
+    uint8_t *datagram;
 
     pack.recorded_len = sizeof(st_eth) + sizeof(ip) + sizeof(udp) + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t);
     pack.orig_len = pack.recorded_len;
@@ -195,6 +203,12 @@ void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
     ip.ip_sum = ip_checksum(&ip, 20);
 
     udp.uh_ulen = htons(sizeof(udp) + + sizeof(ZergHeader_t) + sizeof(ZergGpsPayload_t));
+    datagram = (uint8_t *) malloc(ntohs(udp.uh_ulen) + 1);
+    memcpy(datagram, &udp, sizeof(UdpHeader_t));
+    memcpy(&datagram[sizeof(UdpHeader_t)], zh, sizeof(ZergHeader_t));
+    memcpy(&datagram[sizeof(UdpHeader_t) + sizeof(ZergHeader_t)], zgp, sizeof(ZergGpsPayload_t));
+    udp.uh_sum = udp_checksum(datagram, ntohs(udp.uh_ulen), htonl(ip.ip_src), htonl(ip.ip_dst));
+    free(datagram);
     /* EVERYTHING ABOVE THIS ARE INITIALIZERS */
 
     fwrite(&pack, sizeof(pack), 1, pfp);
