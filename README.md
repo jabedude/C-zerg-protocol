@@ -48,6 +48,7 @@ $ cat > example.txt << EOF
 >From : 7890
 >To : 1234
 >Message : Hello World!
+>EOF
 
 $ ./bin/encode example.txt hello.pcap
 ```
