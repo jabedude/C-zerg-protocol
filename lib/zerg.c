@@ -146,6 +146,11 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
     printf("DEBUG: PAYLOAD IS %d\n", len);
     printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data);
 #endif
+    if (ntohs(zcp.zcp_command) > 7) {
+        fprintf(stderr, "Unknown command type\n");
+        return;
+    }
+
 
     if (len == 2) {
         /* No parameters passed */
@@ -175,6 +180,9 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 break;
             case 7 :
                 printf("Re-send %d\n", ntohl(zcp.zcp_param_two));
+                break;
+            default :
+                fprintf(stderr, "Unknown command\n");
                 break;
         }
     }
