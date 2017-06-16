@@ -239,7 +239,8 @@ void read_input(FILE *fp, FILE *pfp)
     union Fto32 acc;
 
     /*TODO: inline this... */
-    write_pcap(pfp);
+    //write_pcap(pfp);
+    fwrite(&st_pcap, sizeof(st_pcap), 1, pfp);
 
     while (fgets(line, MAX_LINE_SIZE, fp)) {
         if (sscanf(line, "*** Packet %d ***", &pack_num))
