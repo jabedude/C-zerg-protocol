@@ -146,19 +146,18 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
     printf("DEBUG: PAYLOAD IS %d\n", len);
     printf("DEBUG: COMMAND IS %s\n", cmds[ntohs(zcp.zcp_command)].data);
 #endif
+
+    (void) fread(&zcp, len, 1, fp);
     if (ntohs(zcp.zcp_command) > 7) {
         fprintf(stderr, "Unknown command type\n");
         return;
     }
 
-
     if (len == 2) {
         /* No parameters passed */
-        (void) fread(&zcp, len, 1, fp);
         printf("%s\n", cmds[ntohs(zcp.zcp_command)].data);
     } else {
         /* These commands have parameters */
-        (void) fread(&zcp, len, 1, fp);
 #ifdef DEBUG
         printf("DEBUG: PARAM 1 IS: %d\n", ntohs(zcp.zcp_param_one));
         printf("DEBUG: PARAM 2 IS: %d\n", ntohl(zcp.zcp_param_two));
