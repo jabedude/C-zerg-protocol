@@ -146,6 +146,10 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
 
     len = NTOH3(zh->zh_len);
     len -= ZERG_SIZE;
+    if (len > 8) {
+        fprintf(stderr, "Corrupt command packet\n");
+        return;
+    }
 
     (void) fread(&zcp, len, 1, fp);
     if (ntohs(zcp.zcp_command) > 7) {
