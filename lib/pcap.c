@@ -238,6 +238,7 @@ void read_input(FILE *fp, FILE *pfp)
     union Fto32 speed;
     union Fto32 acc;
 
+    /*TODO: inline this... */
     write_pcap(pfp);
 
     while (fgets(line, MAX_LINE_SIZE, fp)) {
