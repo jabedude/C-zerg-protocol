@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     PcapPackHeader_t pcap_pack;
     ZergHeader_t zh;
 
-    /* Usage/ args check */
+    /* Arguments check */
     if (argc < 2) {
         fprintf(stderr, "Usage: %s <pcap file>\n", argv[0]);
         return 1;
@@ -24,6 +24,7 @@ int main(int argc, char **argv)
         fprintf(stderr, "%s: Error opening file.\n", argv[0]);
         return 1;
     }
+
     fseek(fp, 0, SEEK_END);
     file_len = ftell(fp);
     rewind(fp);
@@ -45,6 +46,7 @@ int main(int argc, char **argv)
 #endif
 
     packet_num = 1;
+    /* Main decode loop */
     while (ftell(fp) < file_len) {
         (void) fread(&pcap_pack, sizeof(pcap_pack), 1, fp);
         printf("*** Packet %d ***\n", packet_num);
@@ -57,6 +59,7 @@ int main(int argc, char **argv)
         printf("DEBUG: PACKET END SHOULD BE %lu\n", packet_end);
 #endif
 #ifndef DEBUG
+        /* If not a debug build, skip over un-needed headers */
         fseek(fp, 42, SEEK_CUR);
 #endif
 #ifdef DEBUG
@@ -76,18 +79,14 @@ int main(int argc, char **argv)
                                                 eth.eth_shost[4],
                                                 eth.eth_shost[5]);
         printf("DEBUG: ETHERTYPE IS: 0x%.2x\n", eth.eth_type);
-#endif
 
-#ifdef DEBUG
         (void) fread(&ip, sizeof(ip), 1, fp);
         printf("DEBUG: IP VERSION/HL is 0x%x\n", ip.ip_vhl);
         printf("DEBUG: IP TOTAL LEN is %x\n", ip.ip_len);
         char buf[INET_ADDRSTRLEN];
         printf("DEBUG: SOURCE IP is %s\n", inet_ntop(AF_INET, &ip.ip_src, buf, INET_ADDRSTRLEN));
         printf("DEBUG: DEST IP is %s\n", inet_ntop(AF_INET, &ip.ip_dst, buf, INET_ADDRSTRLEN));
-#endif
 
-#ifdef DEBUG
         (void) fread(&udp, sizeof(udp), 1, fp);
         printf("DEBUG: UDP DEST PORT IS is 0x%x\n", ntohs(udp.uh_dport));
         printf("DEBUG: UDP LENGTH IS is %u\n", ntohs(udp.uh_ulen));
@@ -99,6 +98,7 @@ int main(int argc, char **argv)
         printf("From : %d\n", ntohs(zh.zh_src));
         printf("To : %d\n", ntohs(zh.zh_dest));
 
+        /* Call type-specific decoder routines */
         uint8_t type = zh.zh_vt & 0xFF;
         switch (type) {
             case 0x10 :

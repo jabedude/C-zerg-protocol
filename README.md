@@ -4,6 +4,7 @@ Codec
 - [x] Flourish: GPS output prints Degrees - Minutes - Seconds (DMS)
 - [x] Flourish: IP Checksum calculation
 - [x] Flourish: UDP Checksum calculation
+- [x] Flourish: Make debug generates stack usage files
 
 # Building
 ```
