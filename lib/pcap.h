@@ -70,9 +70,6 @@ typedef struct zerg_header {
 } ZergHeader_t;
 
 /* Funtion Prototypes */
-void write_pcap(FILE *fp);
-void write_packet(FILE *fp);
 void read_input(FILE *fp, FILE *pfp);
-void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg);
 
 #endif

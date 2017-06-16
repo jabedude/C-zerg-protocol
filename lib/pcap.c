@@ -68,13 +68,7 @@ static uint16_t udp_checksum(const void *udp, size_t len, in_addr_t src, in_addr
     return htons((uint16_t) (sum ^ 0xFFFF));
 }
 
-void write_pcap(FILE *fp)
-{
-    fwrite(&st_pcap, sizeof(st_pcap), 1, fp);
-    return;
-}
-
-void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
+static void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
 {   /* Writes a message payload zerg packet to pfp */
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
@@ -107,7 +101,7 @@ void write_msg(FILE *pfp, ZergHeader_t *zh, char *msg)
     return;
 }
 
-void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
+static void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
 {   /* Writes a status payload zerg packet to pfp */
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
@@ -146,7 +140,7 @@ void write_stat(FILE *pfp, ZergHeader_t *zh, ZergStatPayload_t *zsp, char *name)
     return;
 }
 
-void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
+static void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
 {   /* Writes a command payload zerg packet to pfp */
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
@@ -177,7 +171,7 @@ void write_cmd(FILE *pfp, ZergHeader_t *zh, ZergCmdPayload_t *zcp)
     return;
 }
 
-void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
+static void write_gps(FILE *pfp, ZergHeader_t *zh, ZergGpsPayload_t *zgp)
 {   /* Writes a gps data payload packet to pfp */
     PcapPackHeader_t pack = st_pack;
     IpHeader_t ip = st_ip;
@@ -238,8 +232,6 @@ void read_input(FILE *fp, FILE *pfp)
     union Fto32 speed;
     union Fto32 acc;
 
-    /*TODO: inline this... */
-    //write_pcap(pfp);
     fwrite(&st_pcap, sizeof(st_pcap), 1, pfp);
 
     while (fgets(line, MAX_LINE_SIZE, fp)) {
