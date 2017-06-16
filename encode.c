@@ -27,7 +27,6 @@ int main(int argc, char **argv)
 #ifdef DEBUG
     printf("DEBUG: fp is now at %ld\n", ftell(fp));
 #endif
-    putchar('\n');
 
     fclose(fp);
     fclose(pfp);
