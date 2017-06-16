@@ -397,7 +397,6 @@ void read_input(FILE *fp, FILE *pfp)
                 zh.zh_len[1] = (len >> 8) & 0xFF;
                 zh.zh_len[2] = len & 0xFF;
                 uint16_t param_one = 0;
-                //uint32_t param_two = 0;
                 union Fto32 param_two;
                 (void) fgets(line, MAX_LINE_SIZE, fp);
                 if (i == 1) {

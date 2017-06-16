@@ -87,10 +87,9 @@ void z_msg_parse(FILE *fp, ZergHeader_t *zh)
     printf("DEBUG: MSG IS: ");
 #endif
     printf("Message : ");
-    for (int i = 0; i < len; i++) {
-        //printf("%c", msg[i]);
+    for (int i = 0; i < len; i++)
         putchar(msg[i]);
-    }
+
     putchar('\n');
 
     free(msg);
@@ -102,7 +101,6 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     int len = 0;
     int hp = 0;
     unsigned int max_hp = 0;
-    //char *name;
     char name[128];
     ZergStatPayload_t zsp;
 
@@ -126,16 +124,13 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     printf("Type : %s\n", breeds[zsp.zsp_ztype].data);
     printf("Armor : %u\n", zsp.zsp_armor);
     printf("Speed(m/s) : %6.4f\n", ieee_convert32(ntohl(zsp.zsp_speed)));
-    //name = (char *) malloc(sizeof(char) * len - ZERG_STAT_LEN);
     (void) fread(name, sizeof(char), len - ZERG_STAT_LEN, fp);
     printf("Name : ");
-    for (int i = 0; i < len - ZERG_STAT_LEN; i++) {
-        //printf("%c", name[i]);
+    for (int i = 0; i < len - ZERG_STAT_LEN; i++)
         putchar(name[i]);
-    }
+
     putchar('\n');
 
-    //free(name);
     return;
 }
 
