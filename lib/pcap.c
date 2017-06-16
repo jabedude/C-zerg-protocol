@@ -242,15 +242,15 @@ void read_input(FILE *fp, FILE *pfp)
 
     while (fgets(line, MAX_LINE_SIZE, fp)) {
         if (sscanf(line, "*** Packet %d ***", &pack_num))
-            fprintf(stderr, "DEBUG: PACKET NUMBER IS %d\n", pack_num);
+            fprintf(stderr, "PACKET NUMBER IS %d\n", pack_num);
         else if (sscanf(line, "Version : %hhu", &zerg_version))
-            fprintf(stderr, "DEBUG: VERSION IS %u\n", zerg_version);
+            fprintf(stderr, "VERSION IS %u\n", zerg_version);
         else if (sscanf(line, "Sequence : %u", &zerg_sequence))
-            fprintf(stderr, "DEBUG: SEQUENCE IS %u\n", zerg_sequence);
+            fprintf(stderr, "SEQUENCE IS %u\n", zerg_sequence);
         else if (sscanf(line, "From : %hu", &zerg_src))
-            fprintf(stderr, "DEBUG: SOURCE IS %u\n", zerg_src);
+            fprintf(stderr, "SOURCE IS %u\n", zerg_src);
         else if (sscanf(line, "To : %hu", &zerg_dst))
-            fprintf(stderr, "DEBUG: DESTINATION IS %u\n", zerg_dst);
+            fprintf(stderr, "DESTINATION IS %u\n", zerg_dst);
         else if (sscanf(line, "Message : %[^\n]", str)) {
 #ifdef DEBUG
             printf("DEBUG: MESSAGE IS %s\n", str);
