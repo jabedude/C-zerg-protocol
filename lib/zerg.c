@@ -114,6 +114,11 @@ void z_status_parse(FILE *fp, ZergHeader_t *zh)
     (void) fread(&zsp, sizeof(zsp), 1, fp);
     hp = NTOH3(zsp.zsp_hp);
     max_hp = NTOH3(zsp.zsp_maxhp);
+    if (zsp.zsp_ztype > 15) {
+        fprintf(stderr, "Unknown breed\n");
+        return;
+    }
+
 #ifdef DEBUG
     printf("DEBUG: HP IS: %d\n", hp);
     printf("DEBUG: ZERG TYPE IS: %d\n", zsp.zsp_ztype);
