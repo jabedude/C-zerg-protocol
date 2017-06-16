@@ -9,7 +9,7 @@
 #define ETH_SIZE 14
 #define UDP_SIZE 0xC
 #define ZERG_SIZE 12
-#define MAX_LINE_SIZE 64
+#define MAX_LINE_SIZE 128
 
 /* Structs for reading a pcap file */
 
