@@ -94,6 +94,11 @@ int main(int argc, char **argv)
 
         (void) fread(&zh, sizeof(zh), 1, fp);
         printf("Version : %x\n", zh.zh_vt >> 4);
+        /* This program only supports version 1 */
+        if ((zh.zh_vt >> 4) != 1) {
+            fprintf(stderr, "Usupported Psychic Capture version\n");
+            goto cleanup;
+        }
         printf("Sequence : %u\n", ntohl(zh.zh_seqid));
         printf("From : %d\n", ntohs(zh.zh_src));
         printf("To : %d\n", ntohs(zh.zh_dest));
@@ -120,6 +125,7 @@ int main(int argc, char **argv)
 #ifdef DEBUG
         printf("DEBUG: FP IS AT %lu\n", ftell(fp));
 #endif
+    cleanup:
         packet_num++;
         fseek(fp, packet_end, SEEK_SET);
 
