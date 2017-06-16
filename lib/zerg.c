@@ -191,7 +191,7 @@ void z_cmd_parse(FILE *fp, ZergHeader_t *zh)
                 printf("Re-send %d\n", ntohl(zcp.zcp_param_two));
                 break;
             default :
-                fprintf(stderr, "Unknown command\n");
+                fprintf(stderr, "Unknown command: %d\n", ntohs(zcp.zcp_command);
                 break;
         }
     }
